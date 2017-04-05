@@ -1,7 +1,8 @@
 import tkinter as tk
-from PIL import Image, ImageDraw, ImageFont, ImageTk, ImageStat
+from PIL import Image, ImageDraw, ImageFont, ImageStat
 from configparser import ConfigParser
 import config
+import font2img
 
 
 class Font(object):
@@ -26,6 +27,7 @@ class Font(object):
     """
 
     ALPHABET = "abcdefghijklmnopqrstuvwxyz"
+    SYMMETRIC = "AHIMOSTUVWXY"
     MONOSPACE = "Monospace"
     SERIF = "Serif"
     SANS = "Sans Serif"
@@ -49,6 +51,7 @@ class Font(object):
             self.extract_width()
             self.extract_thickness()
             self.extract_category()
+            self.extract_slant()
 
     def extract_PIL(self):
         """ Extracts all data already collected by PIL fonts """
@@ -108,27 +111,22 @@ class Font(object):
         else:
             self.category = Font.SANS
 
+    def extract_slant(self):
+        """ Compute slant by getting mean slope of symmetric characters """
+        # TODO consider 'stems' of lowercase characters - 'b', 'd', 'p', etc.
+        pass
+
     def set_size(self, size):
         self.size = size
         # TODO this is probably really slow and inefficient
         self.imgfont = ImageFont.truetype(self.path, self.size)
 
     def display(self, master, w=500, h=500):
-        # draw preview
-        image = Image.new("RGB", (w - 10, 500), config.PIL_BACKGROUND)
-        draw = ImageDraw.Draw(image)
         user_text = "Handgloves"
-        lw = int((w - 10) /self.width)
         textstr = "{}\n{}\n{}".format(Font.ALPHABET,
                                       Font.ALPHABET.upper(), user_text)
-        # split then join with newlines for multiline text
-        textls = [textstr[i:i+lw] for i in range(0, len(textstr), lw)]
-        textstr = "\n".join(textls)
-
-        draw.multiline_text((0, 0), textstr, font=self.imgfont,
-                            fill=(0, 0, 0), spacing=10)
-
-        photo = ImageTk.PhotoImage(image)
+        photo = font2img.multiline_tk(textstr, self.imgfont,
+                                      (w-10, h), padx=10, pady=10)
 
         font = tk.Frame()
         font.configure(background=config.BACKGROUND)
