@@ -153,15 +153,13 @@ class Font(object):
                                       (w-10, h), padx=10, pady=10)
 
         font = tk.Frame()
-        font.configure(background=config.BACKGROUND)
+        font.configure()
 
         # draw title
         title = tk.Label(font, text=self.name,
                          font=config.HEADING_FONT,
                          padx=10,
-                         pady=10,
-                         background=config.BACKGROUND,
-                         foreground=config.HEADING_COLOR)
+                         pady=10)
         title.grid()
 
         # display preview
