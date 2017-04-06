@@ -3,6 +3,7 @@ from PIL import Image, ImageDraw, ImageFont, ImageStat
 from configparser import ConfigParser
 import config
 import font2img
+from numpy import polyfit
 
 
 class Font(object):
@@ -12,7 +13,7 @@ class Font(object):
         name
         family
         path
-        imgfont: PIL font object
+        pilfont: PIL font object
         size: current font size
         category: serif, sans, display, etc.
         languages
@@ -27,7 +28,7 @@ class Font(object):
     """
 
     ALPHABET = "abcdefghijklmnopqrstuvwxyz"
-    SYMMETRIC = "AHIMOSTUVWXY"
+    SYMMETRIC = "HITl"
     MONOSPACE = "Monospace"
     SERIF = "Serif"
     SANS = "Sans Serif"
@@ -45,7 +46,7 @@ class Font(object):
         elif type(arg1) is str and arg2 is None:
             self.path = arg1
             self.size = 50
-            self.imgfont = ImageFont.truetype(self.path, size=self.size)
+            self.pilfont = ImageFont.truetype(self.path, size=self.size)
 
             self.extract_PIL()
             self.extract_width()
@@ -55,18 +56,18 @@ class Font(object):
 
     def extract_PIL(self):
         """ Extracts all data already collected by PIL fonts """
-        self.family = self.imgfont.font.family
-        self.style = self.imgfont.font.style
+        self.family = self.pilfont.font.family
+        self.style = self.pilfont.font.style
         self.name = "{} {}".format(self.family, self.style)
-        self.ascent = self.imgfont.font.ascent
-        self.descent = self.imgfont.font.descent
+        self.ascent = self.pilfont.font.ascent
+        self.descent = self.pilfont.font.descent
 
     def extract_width(self):
         """ Infers width by averaging individual character widths. """
         totalwidth = 0
         fullabc = Font.ALPHABET + Font.ALPHABET.upper()
         for c in list(fullabc):
-            totalwidth += self.imgfont.getsize(c)[0]
+            totalwidth += self.pilfont.getsize(c)[0]
         mean = totalwidth / len(fullabc)
         self.width = mean
 
@@ -75,12 +76,12 @@ class Font(object):
         Calculates thickness by getting average pixels filled in a
         horizontal sliver of the text
         """
-        bmpsize = self.imgfont.getsize(Font.ALPHABET.upper())
+        bmpsize = self.pilfont.getsize(Font.ALPHABET.upper())
         statimg = Image.new("1", (bmpsize[0],
                             bmpsize[1] - self.ascent), color=1)
         draw = ImageDraw.Draw(statimg)
         draw.text((0, -self.descent), Font.ALPHABET.upper(),
-                  font=self.imgfont, fill=(0))
+                  font=self.pilfont, fill=(0))
         stat = ImageStat.Stat(statimg)
         self.thickness = stat.mean
 
@@ -89,7 +90,7 @@ class Font(object):
         # Should be unique to serif characters, might also pick up
         # calligraphy?
         linestr = "T"
-        bmpsize = self.imgfont.getsize(linestr)
+        bmpsize = self.pilfont.getsize(linestr)
 
         lineimg = Image.new("1", bmpsize, color=1)
 
@@ -97,7 +98,7 @@ class Font(object):
         drawmask = ImageDraw.Draw(mask)
 
         draw = ImageDraw.Draw(lineimg)
-        draw.text((0, 0), linestr, font=self.imgfont, fill=(0))
+        draw.text((0, 0), linestr, font=self.pilfont, fill=(0))
 
         widths = set()
         for y in range(int(2 * bmpsize[1] / 3), bmpsize[1]):
@@ -113,19 +114,42 @@ class Font(object):
 
     def extract_slant(self):
         """ Compute slant by getting mean slope of symmetric characters """
-        # TODO consider 'stems' of lowercase characters - 'b', 'd', 'p', etc.
-        pass
+        meanslant = 0
+        # should one use symmetrics or the whole alphabet? Who knows
+        # also TODO, when we get linear reps of each letter use that instead
+        slstr = Font.ALPHABET + Font.ALPHABET.upper()
+        for c in list(slstr):
+            xp = []
+            yp = []
+            img = font2img.single_pil(c, self.pilfont)[0]
+            px = img.load()
+            for y in range(img.size[1]):
+                pt = 0
+                n = 0
+                for x in range(img.size[0]):
+                    if px[x, y] == 0:
+                        pt += x
+                        n += 1
+                if n != 0:
+                    # THIS IS INTENTIONAL, DON'T CHANGE IT
+                    # We want to get the slant off of the normal so we reverse x
+                    # and y
+                    xp.append(y)
+                    yp.append(pt / n)
+            slant, offset = polyfit(xp, yp, 1)
+            meanslant += slant
+        self.slant = -meanslant / len(slstr)
 
     def set_size(self, size):
         self.size = size
         # TODO this is probably really slow and inefficient
-        self.imgfont = ImageFont.truetype(self.path, self.size)
+        self.pilfont = ImageFont.truetype(self.path, self.size)
 
     def display(self, master, w=500, h=500):
         user_text = "Handgloves"
         textstr = "{}\n{}\n{}".format(Font.ALPHABET,
                                       Font.ALPHABET.upper(), user_text)
-        photo = font2img.multiline_tk(textstr, self.imgfont,
+        photo = font2img.multiline_tk(textstr, self.pilfont,
                                       (w-10, h), padx=10, pady=10)
 
         font = tk.Frame()

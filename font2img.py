@@ -5,6 +5,7 @@ import config
 def multiline_tk(text, pilfont, size, mode="RGB",
                  padx=0, pady=0, spacing=0,
                  background=config.PIL_BACKGROUND, foreground=(0, 0, 0)):
+        """ Automatically spaces and fits text to an image """
         image = Image.new(mode, size, background)
         draw = ImageDraw.Draw(image)
 
@@ -34,9 +35,10 @@ def multiline_tk(text, pilfont, size, mode="RGB",
 
 def single_pil(text, pilfont, size=None, mode=1,
                background="", foreground=""):
+    """ Creates a one row b&w image of text to quantify """
     bmpsize = (0, 0)
     bmpsize = pilfont.getsize(text) if size is None else size
     img = Image.new("1", bmpsize, color=1)
     draw = ImageDraw.Draw(img)
-    draw.text((0,0), text, font=pilfont, fill=(0))
+    draw.text((0, 0), text, font=pilfont, fill=(0))
     return (img, draw)
