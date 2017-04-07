@@ -33,12 +33,11 @@ def multiline_tk(text, pilfont, size, mode="RGB",
         return photo
 
 
-def single_pil(text, pilfont, size=None, mode=1,
-               background="", foreground=""):
+def single_pil(text, pilfont, size=None, mode="1", fore=0, back=1):
     """ Creates a one row b&w image of text to quantify """
     bmpsize = (0, 0)
     bmpsize = pilfont.getsize(text) if size is None else size
-    img = Image.new("1", bmpsize, color=1)
+    img = Image.new(mode, bmpsize, color=1)
     draw = ImageDraw.Draw(img)
     draw.text((0, 0), text, font=pilfont, fill=(0))
     return (img, draw)

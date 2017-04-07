@@ -18,10 +18,13 @@ class Font(object):
         size: current font size
         category: serif, sans, display, etc.
         languages
-        thicknesses
-        mean_thickness
+        thicknesses: the thickness values at all points in the typeface
+        mean_thickness: average thickness
+        thickness_variation: standard dev. of thicknesses
         slant
         width
+        height
+        ratio: height/width
         style: bold, thin, italic etc.
         ascent: space between lowercase height and uppercase height
         descent: length of tail on 'p', 'q', and others
@@ -58,6 +61,7 @@ class Font(object):
             self.extract_thickness()
             self.extract_category()
             self.extract_slant()
+            print("{} {}".format(self.name, self.thickness_variation))
 
     def extract_PIL(self):
         """ Extracts all data already collected by PIL fonts """
@@ -70,25 +74,34 @@ class Font(object):
     def extract_width(self):
         """ Infers width by averaging individual character widths. """
         totalwidth = 0
+        totalheight = 0
         fullabc = Font.ALPHABET + Font.ALPHABET.upper()
         for c in list(fullabc):
-            totalwidth += self.pilfont.getsize(c)[0]
-        mean = totalwidth / len(fullabc)
-        self.width = mean
+            img, draw = f2i.single_pil(c, self.pilfont, fore=1, back=0)
+            bbox = img.getbbox()
+            totalwidth += bbox[2] - bbox[0]
+            totalheight += bbox[3] - bbox[1]
+        self.height = totalheight / len(fullabc)
+        self.width = totalwidth / len(fullabc)
+        self.ratio = self.height / self.width
 
     def extract_thickness(self):
         """
-        Calculates thickness by getting average pixels filled in a
-        horizontal sliver of the text
+        Calculates thickness by taking the median of thicknesses
         """
-        bmpsize = self.pilfont.getsize(Font.ALPHABET.upper())
-        statimg = Image.new("1", (bmpsize[0],
-                            bmpsize[1] - self.ascent), color=1)
-        draw = ImageDraw.Draw(statimg)
-        draw.text((0, -self.descent), Font.ALPHABET.upper(),
-                  font=self.pilfont, fill=(0))
-        stat = ImageStat.Stat(statimg)
-        self.thickness = stat.mean
+        num_vals = sum(self.thicknesses)
+        sum_thick = 0
+        for val, num in enumerate(self.thicknesses):
+            sum_thick += val * num
+        mean_thickness = sum_thick / num_vals
+        self.thickness = mean_thickness
+        # calculate stddev
+        total = 0
+        for val, num in enumerate(self.thicknesses):
+            term = (val - self.thickness) ** 2
+            total += term * num
+        stddevsq = total / num_vals
+        self.thickness_variation = sqrt(stddevsq)
 
     def extract_category(self):
         # Check if serif by using the uppercase T
@@ -118,7 +131,7 @@ class Font(object):
             self.category = Font.SANS
 
     def extract_slant(self):
-        """ Compute slant by getting mean slope of symmetric characters """
+        """ Compute slant by getting mean slope of characters """
         meanslant = 0
         # should one use symmetrics or the whole alphabet? Who knows
         # also TODO, when we get linear reps of each letter use that instead
@@ -227,7 +240,7 @@ class Font(object):
                             shortest_pts[0][1]+shortest_len))
                     draw.ellipse(ell, fill=1)
 
-    def display(self, master, w=500, h=500):
+    def display(self, master=None, w=500, h=500):
         user_text = "Handgloves"
         textstr = "{}\n{}\n{}".format(Font.ALPHABET,
                                       Font.ALPHABET.upper(), user_text)
@@ -256,3 +269,4 @@ class Font(object):
         e.grid(sticky=tk.E+tk.W, padx=10, pady=10)
 
         font.pack()
+        return font
