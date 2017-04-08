@@ -1,10 +1,10 @@
 import tkinter as tk
 from PIL import Image, ImageDraw, ImageFont, ImageStat, ImageOps
-from configparser import ConfigParser
 import config
 import font2img as f2i
 from numpy import polyfit
 from math import sin, cos, pi, sqrt
+import pickle
 
 
 class Font(object):
@@ -24,6 +24,8 @@ class Font(object):
         slant
         width
         height
+        display_categories: list of strings and values to display,
+                            first idx in tuple is name and second is dict value
         ratio: height/width
         style: bold, thin, italic etc.
         ascent: space between lowercase height and uppercase height
@@ -42,18 +44,22 @@ class Font(object):
     BLOCK = "Block"
 
     DELTA_RAD = pi/18
+    DISPLAY_CATEGORIES = [
+        ('Category: {}', 'category'),
+        ('Width: {} Height: {} Ratio: {}',
+         ('width', 'height', 'ratio')),
+        ('Slant: {}', 'slant'),
+        ('Thickness: {}', 'thickness'),
+        ('Thickness Variation: {}', 'thickness_variation'),
+        ('Path: {}', 'path')
+    ]
 
     def __init__(self, arg1, arg2=None):
-        # option 1: a font name and a config file to load in from
-        if type(arg1) is str and type(arg2) is ConfigParser:
-            # load from config
-            self.name = arg1
-            raise NotImplementedError("Font cannot yet load from config.")
-        # option 2: a path to a font to go find the details yourself
-        elif type(arg1) is str and arg2 is None:
+        # option 1: a path to a font to go find the details yourself
+        if type(arg1) is str and arg2 is None:
             self.path = arg1
             self.size = 50
-            self.pilfont = ImageFont.truetype(self.path, size=self.size)
+            self.open_path()
 
             self.extract_PIL()
             self.extract_centroid_metrics()
@@ -61,7 +67,11 @@ class Font(object):
             self.extract_thickness()
             self.extract_category()
             self.extract_slant()
-            print("{} {}".format(self.name, self.thickness_variation))
+
+            print("Loaded {} from ".format(self.name, self.path))
+
+    def open_path(self):
+        self.pilfont = ImageFont.truetype(self.path, size=self.size)
 
     def extract_PIL(self):
         """ Extracts all data already collected by PIL fonts """
@@ -211,7 +221,8 @@ class Font(object):
 
     def set_size(self, size):
         self.size = size
-        # TODO this is probably really slow and inefficient
+        # TODO_ this is probably really slow and inefficient
+        # wontfix, afaik pil doesn't support font resizing
         self.pilfont = ImageFont.truetype(self.path, self.size)
 
     def extract_centroid_metrics(self):
@@ -240,33 +251,115 @@ class Font(object):
                             shortest_pts[0][1]+shortest_len))
                     draw.ellipse(ell, fill=1)
 
-    def display(self, master=None, w=500, h=500):
-        user_text = "Handgloves"
-        textstr = "{}\n{}\n{}".format(Font.ALPHABET,
-                                      Font.ALPHABET.upper(), user_text)
-        photo = f2i.multiline_tk(textstr, self.pilfont,
-                                 (w-10, h), padx=10, pady=10)
+    def category_str(self, formatstr, categories):
+        """ Converts a display category to a string """
+        formatargs = []
+        if type(categories) is str:
+            val = self.__dict__[categories]
+            if type(val) is float:
+                val = round(val, 3)
+            formatargs.append(val)
+        elif type(categories) is tuple or type(categories) is list:
+            for i in categories:
+                val = self.__dict__[i]
+                if type(val) is float:
+                    val = round(val, 3)
+                formatargs.append(val)
+        return formatstr.format(*formatargs)
 
-        font = tk.Frame()
-        font.configure()
+    def display(self, w=500, h=500, master=None):
+        """
+        Returns a tk.Frame of information about the font that
+            scales to the size required, in theory.
+        """
+        # option one: an actual full display with everything on it
+        if h > 200 and w > 50:
+            font = tk.Frame(borderwidth=1, relief=tk.SOLID)
 
-        # draw title
-        title = tk.Label(font, text=self.name,
-                         font=config.HEADING_FONT,
-                         padx=10,
-                         pady=10)
-        title.grid()
+            hpad = int(h / 100)
+            wpad = int(w / 100)
 
-        # display preview
-        label = tk.Label(font, image=photo)
-        label.image = photo
-        label.grid(padx=10, pady=10)
+            # draw title
+            title = tk.Label(font, text=self.name,
+                             font=config.heading_font(int(w/15)),
+                             padx=wpad, pady=hpad)
+            title.grid(sticky=tk.N, in_=font, columnspan=2)
 
-        # text entry
-        e = tk.Entry(font)
-        e.delete(0, tk.END)
-        e.insert(0, "20")
-        e.grid(sticky=tk.E+tk.W, padx=10, pady=10)
+            # display preview
+            label = tk.Label(relief=tk.SOLID, borderwidth=1)
 
-        font.pack()
-        return font
+            # TODO varying colors and randomly chosen phrases
+            user_text = "Handgloves"
+
+            # callback to set text and text size
+            def set_text(text, size=self.size):
+                # TODO not good practice
+                if size != self.size and (type(size) == int or size.isdigit()):
+                    size = int(size)
+                    # Things get nasty if you punch in a number too big
+                    if(size > 200):
+                        size = 200
+                    self.set_size(size)
+                # TODO automatically set font size to a reasonable level when
+                # started
+                # FIXME if you change the size and then the text it sometimes
+                # won't change until you change the text again
+                photo = f2i.multiline_tk(text, self.pilfont,
+                                         (int(w), int(h/2)),
+                                         padx=wpad, pady=hpad)
+                label.image = photo
+                label.configure(image=photo)
+                label.grid(padx=wpad, pady=hpad, row=1, column=0,
+                           sticky=tk.N, in_=font, columnspan=2)
+            set_text(user_text)
+
+            font.grid_columnconfigure(1, minsize=int(w/75))
+            font.grid_columnconfigure(0, weight=1)
+
+            # text entry
+            svtext = tk.StringVar()
+            svtext.trace("w", lambda n, idx, mode,
+                         sv=svtext: set_text(svtext.get()))
+            textin = tk.Entry(font, textvariable=svtext)
+            textin.delete(0, tk.END)
+            textin.insert(0, "Handgloves")
+            textin.grid(sticky=tk.W+tk.E, padx=wpad, pady=hpad, in_=font,
+                        row=2, column=0)
+
+            # font size entry
+            sv1 = tk.StringVar()
+            sv1.trace("w", lambda n, idx, mode, sv=sv1:
+                      set_text(svtext.get(), sv.get()))
+            sizein = tk.Entry(font, textvariable=sv1, width=3)
+            sizein.delete(0, tk.END)
+            sizein.insert(0, str(self.size))
+            sizein.grid(sticky=tk.E, padx=wpad, pady=hpad,
+                        in_=font, row=2, column=1)
+
+            # attributes with a scrollbar
+            scrollbar = tk.Scrollbar(font)
+            scrollbar.grid(sticky=tk.W+tk.N+tk.S, row=3, column=1,
+                           padx=wpad, pady=hpad)
+            listbox = tk.Listbox(font)
+            listbox.grid(sticky=tk.E+tk.W, padx=wpad, pady=hpad,
+                         row=3, column=0)
+            for i in Font.DISPLAY_CATEGORIES:
+                listbox.insert(tk.END, self.category_str(i[0], i[1]))
+            listbox.config(yscrollcommand=scrollbar.set)
+            scrollbar.config(command=listbox.yview)
+
+            return font
+
+    def save(self):
+        pil = self.pilfont
+        self.pilfont = None
+        pickle.dump(self, open(config.CACHE_LOCATION + "/" +
+                    self.name.replace(" ", "_"), "wb"))
+        self.pilfont = pil
+
+    def __getstate__(self):
+        return self.__dict__
+
+    def __setstate__(self, d):
+        self.__dict__ = d
+        self.open_path()
