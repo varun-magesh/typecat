@@ -1,9 +1,10 @@
 from os.path import expanduser, isfile
 from os import makedirs
 # can't actually construct a tkinter font because you need a root window
-SUBTITLE_FONT = "Helvetica 20 regular"
 PIL_BACKGROUND = (255, 255, 239)
 CACHE_LOCATION = expanduser("~/.types/")
+FONT_DIRS = [expanduser("~/.fonts"), "/usr/share/fonts"]
+FONT_FILE_EXTENSIONS = [".ttf", ".otf"]
 
 
 def setup_cache():
@@ -17,9 +18,3 @@ def heading_font(size=30):
 
 def body_font(size=15):
     return "Helvetica {}".format(size)
-
-
-
-
-
-

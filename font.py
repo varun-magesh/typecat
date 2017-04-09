@@ -68,7 +68,7 @@ class Font(object):
             self.extract_category()
             self.extract_slant()
 
-            print("Loaded {} from ".format(self.name, self.path))
+            print("Loaded {} from {}".format(self.name, self.path))
 
     def open_path(self):
         self.pilfont = ImageFont.truetype(self.path, size=self.size)
@@ -273,8 +273,43 @@ class Font(object):
             scales to the size required, in theory.
         """
         # option one: an actual full display with everything on it
-        if h > 200 and w > 50:
-            font = tk.Frame(borderwidth=1, relief=tk.SOLID)
+        if h > 300 and w > 300:
+            return self.info_panel(w, h, master)
+        else:
+            return self.name_panel(w, h, master)
+
+    def name_panel(self, w=500, h=500, master=None):
+        frame = 0
+        if master is None:
+            frame = tk.Frame(borderwidth=1, relief=tk.RAISED)
+        else:
+            frame = tk.Frame(master, borderwidth=1, relief=tk.RAISED)
+        hpad = int(h/100)
+        wpad = int(w/100)
+        size = int(h / 10)
+        self.set_size(size)
+        text = "xgcZa"
+        photo = f2i.multiline_tk(text, self.pilfont,
+                                 (int(w/4), int(h/5)),
+                                 padx=wpad, pady=hpad)
+        label = tk.Label(relief=tk.SOLID, borderwidth=1)
+        label.image = photo
+        label.configure(image=photo)
+        label.grid(padx=wpad, pady=hpad, row=0, column=0,
+                   sticky=tk.W, in_=frame, columnspan=1)
+
+        title = tk.Label(frame, text=self.name,
+                         font=config.body_font(size),
+                         padx=wpad, pady=hpad)
+        title.grid(sticky=tk.E, in_=frame, columnspan=2, column=1, row=0)
+        return frame
+
+    def info_panel(self, w=500, h=500, master=None):
+            font = 0
+            if master is None:
+                font = tk.Frame(borderwidth=1, relief=tk.SOLID)
+            else:
+                font = tk.Frame(master, borderwidth=1, relief=tk.SOLID)
 
             hpad = int(h / 100)
             wpad = int(w / 100)
@@ -349,13 +384,14 @@ class Font(object):
             scrollbar.config(command=listbox.yview)
 
             return font
-
     def save(self):
+        """ pickles to the cache directory and returns the name of the file """
         pil = self.pilfont
         self.pilfont = None
         pickle.dump(self, open(config.CACHE_LOCATION + "/" +
-                    self.name.replace(" ", "_"), "wb"))
+                    self.name.replace(" ", "_") + ".pickle", "wb"))
         self.pilfont = pil
+        return self.name.replace(" ", "_")
 
     def __getstate__(self):
         return self.__dict__
@@ -363,3 +399,11 @@ class Font(object):
     def __setstate__(self, d):
         self.__dict__ = d
         self.open_path()
+
+    @staticmethod
+    def extract_name(d):
+        """ Extracts just the name from a font to check if it's loaded """
+        pilfont = ImageFont.truetype(d)
+        family = pilfont.font.family
+        style = pilfont.font.style
+        return "{} {}".format(family, style)
