@@ -27,7 +27,7 @@ def load_fonts():
                         fontname = Font.extract_name(os.path.join(dirpath, d))
                         if fontname not in fonts:
                             g = Font(os.path.join(dirpath, d))
-                            fonts[fontname] = f
+                            fonts[fontname] = g
                             g.save()
                     except TypeError:
                         print("Failed to read font at path {}".format(
@@ -56,7 +56,7 @@ def show_info(font):
 
 def generate_command(font):
     return lambda *args: show_info(font)
-show_info("Libre Baskerville Regular")
+show_info(".SF NS Text Condensed Bold")
 
 
 def show_fonts(inputlist):
