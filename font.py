@@ -103,14 +103,14 @@ class Font(object):
         sum_thick = 0
         for val, num in enumerate(self.thicknesses):
             sum_thick += val * num
-        mean_thickness = sum_thick / num_vals
+        mean_thickness = sum_thick / max(1, num_vals)
         self.thickness = mean_thickness
         # calculate stddev
         total = 0
         for val, num in enumerate(self.thicknesses):
             term = (val - self.thickness) ** 2
             total += term * num
-        stddevsq = total / num_vals
+        stddevsq = total / max(1, num_vals)
         self.thickness_variation = sqrt(stddevsq)
 
     def extract_category(self):
@@ -384,12 +384,13 @@ class Font(object):
             scrollbar.config(command=listbox.yview)
 
             return font
+
     def save(self):
         """ pickles to the cache directory and returns the name of the file """
         pil = self.pilfont
         self.pilfont = None
         pickle.dump(self, open(config.CACHE_LOCATION + "/" +
-                    self.name.replace(" ", "_") + ".pickle", "wb"))
+                               str(self.name) + ".pickle", "wb"))
         self.pilfont = pil
         return self.name.replace(" ", "_")
 
