@@ -279,18 +279,20 @@ class Font(object):
             return self.name_panel(w, h, master)
 
     def name_panel(self, w=500, h=500, master=None):
+        # TODO buttons are really jerky and dont' work when you click text or
+        # image, only the side
         frame = 0
         if master is None:
-            frame = tk.Frame(borderwidth=1, relief=tk.RAISED)
+            frame = tk.Button(borderwidth=1, relief=tk.RAISED)
         else:
-            frame = tk.Frame(master, borderwidth=1, relief=tk.RAISED)
+            frame = tk.Button(master, borderwidth=1, relief=tk.RAISED)
         hpad = int(h/100)
         wpad = int(w/100)
-        size = int(h / 10)
+        size = int(h/2)
         self.set_size(size)
         text = "xgcZa"
         photo = f2i.multiline_tk(text, self.pilfont,
-                                 (int(w/4), int(h/5)),
+                                 (int(w/4), int(h-2*hpad)),
                                  padx=wpad, pady=hpad)
         label = tk.Label(relief=tk.SOLID, borderwidth=1)
         label.image = photo
@@ -315,8 +317,9 @@ class Font(object):
             wpad = int(w / 100)
 
             # draw title
+            titlesize = int(w/len(self.name))
             title = tk.Label(font, text=self.name,
-                             font=config.heading_font(int(w/15)),
+                             font=config.heading_font(titlesize),
                              padx=wpad, pady=hpad)
             title.grid(sticky=tk.N, in_=font, columnspan=2)
 
@@ -346,6 +349,8 @@ class Font(object):
                 label.configure(image=photo)
                 label.grid(padx=wpad, pady=hpad, row=1, column=0,
                            sticky=tk.N, in_=font, columnspan=2)
+
+
             set_text(user_text)
 
             font.grid_columnconfigure(1, minsize=int(w/75))
