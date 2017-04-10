@@ -13,5 +13,6 @@ Types is a font 'palette' that allows you to search for fonts and filter them ba
 * python3
 * pillow
 * numpy
-## Current status
-Types currently functions as a basic, font-searching manager. The data necessary to filter by other features is collected, but an interface to find fonts based on their features has not yet been implemented.
+## Status
+Still in progress: there's no config system and it's missing a lot of features. It can still be run: `python3 types.py`
+
