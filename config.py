@@ -1,9 +1,15 @@
 from os.path import expanduser, isfile
 from os import makedirs
+from sys import platform as _platform
 # can't actually construct a tkinter font because you need a root window
 PIL_BACKGROUND = (255, 255, 239)
 CACHE_LOCATION = expanduser("~/.types/")
-FONT_DIRS = [expanduser("~/.fonts"), "/usr/share/fonts"]
+FONT_DIRS = []
+if _platform == "linux" or _platform == "linux2":
+	FONT_DIRS = [expanduser("~/.fonts"), "/usr/share/fonts"]
+elif _platform == "darwin":
+	FONT_DIRS = [expanduser("~/Library/Fonts"), "/Library/Fonts", " /System/Library/Fonts"]
+elif _platform == "win32":
 FONT_FILE_EXTENSIONS = [".ttf", ".otf"]
 # all scales are at size 50
 # Mean, Stddev

@@ -30,4 +30,5 @@ class FilterOption(tk.Frame):
 
     def slide_action(self, event=None):
         self.slider_state = self.slider.get()
-        self.callback()
+		if self.checkbutton_state:
+			self.callback()

@@ -19,3 +19,4 @@ General:
 	IMPORTANT: ITALICS ARE RECOGNIZED AS SERIF
 	IMPORTANT: feature scaline when sorting
 	IMPORTANT: Clean up/refactor the crap that is types.py
+	Recognize when fonts can't be rendered in PIL or are rendered as boxes and skip those

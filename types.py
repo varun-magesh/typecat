@@ -36,7 +36,7 @@ def load_fonts():
                             g = Font(os.path.join(dirpath, d))
                             fonts[fontname] = g
                             g.save()
-                    except TypeError:
+                    except Exception as e:
                         print("Failed to read font at path {}".format(
                                       os.path.join(dirpath, d)))
     global keys
