@@ -10,6 +10,8 @@ if _platform == "linux" or _platform == "linux2":
 elif _platform == "darwin":
 	FONT_DIRS = [expanduser("~/Library/Fonts"), "/Library/Fonts", " /System/Library/Fonts"]
 elif _platform == "win32":
+	print("According to superuser.com, C:\\Windows\\Fonts is a symlink to something in SxS. Python should follow the symlink right though. If all you see is this message and nothing else like 'Loaded font from...' then it didn't.")
+	FONT_DIRS = ["C:\\Windows\\Fonts"]
 FONT_FILE_EXTENSIONS = [".ttf", ".otf"]
 # all scales are at size 50
 # Mean, Stddev
