@@ -14,6 +14,7 @@ keys = list()
 COMPARABLE_FEATURES = ["slant", "thickness", "width", "height",
                        "ratio", "thickness_variation"]
 
+
 def load_fonts():
     # TODO if you have a lot of fonts this might kill memory, we should load and
     # del fonts as necessary.
@@ -78,7 +79,8 @@ def show_fonts(inputlist):
         f.grid_propagate(0)
         f.configure(command=generate_command(name))
         # +1 for the search bar
-        f.grid(column=1, row=num + 1 + len(COMPARABLE_FEATURES), sticky=tk.E+tk.N+tk.W+tk.S, in_=root,
+        f.grid(column=1, row=num + 1 + len(COMPARABLE_FEATURES),
+               sticky=tk.E+tk.N+tk.W+tk.S, in_=root,
                padx=0, pady=0, columnspan=2)
         current_display.append(f)
 
@@ -90,7 +92,6 @@ def scale_features():
     I might end up pasting the scales from my own fonts into the code, should
     be just fine.
     """
-    features = fonts[keys[0]].__dict__.keys()
     for f in COMPARABLE_FEATURES:
         population = []
         for k in keys:
@@ -142,8 +143,18 @@ def find_features(features, values):
 
 optionwidgets = []
 
+
 def find_options():
-    pass
+    features = []
+    values = []
+    for ow in optionwidgets:
+        if ow.checkbutton_state:
+            features.append(ow.feature)
+            map_stdev = ow.slider_state * config.SCALE[ow.feature][1] + \
+                        config.SCALE[ow.feature][0]
+            values.append(map_stdev)
+    find_features(features, values)
+
 
 for num, f in enumerate(COMPARABLE_FEATURES):
     p = FilterOption(root, f, find_options)

@@ -12,6 +12,7 @@ class FilterOption(tk.Frame):
         self.callback = callback
 
         self.checkbutton_var = tk.IntVar()
+        self.checkbutton_state = 0
         self.check = tk.Checkbutton(self, text="Filter {}".format(feature),
                                     command=self.check_action,
                                     variable=self.checkbutton_var)
