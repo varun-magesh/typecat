@@ -16,3 +16,5 @@ General:
 	Add a scrollbar
 	After we delete the frame replace it with a blank one so the window doesn't get smaller then larger again
 	Phonetic typing/language extraction
+	IMPORTANT: ITALICS ARE RECOGNIZED AS SERIF
+	IMPORTANT: feature scaline when sorting

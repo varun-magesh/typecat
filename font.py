@@ -19,7 +19,7 @@ class Font(object):
         category: serif, sans, display, etc.
         languages
         thicknesses: the thickness values at all points in the typeface
-        mean_thickness: average thickness
+        thickness: average thickness
         thickness_variation: standard dev. of thicknesses
         slant
         width

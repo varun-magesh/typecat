@@ -1,9 +1,11 @@
 from font import Font
 from random import randint
+from math import sqrt
 import tkinter as tk
 import pickle
 import os
 import config
+import statistics
 
 fonts = dict()
 keys = list()
@@ -78,6 +80,25 @@ def show_fonts(inputlist):
         current_display.append(f)
 
 
+def scale_features():
+    """
+    Calculates the stddev and mean of each feature.
+    Not necessary to be run more than once in a while.
+    I might end up pasting the scales from my own fonts into the code, should
+    be just fine.
+    """
+    features = fonts[keys[0]].__dict__.keys()
+    for f in features:
+        if type(fonts[keys[1]].__dict__[f]) not in [float, int, complex]:
+            continue
+        population = []
+        for k in keys:
+            population.append(fonts[k].__dict__[f])
+        mean = sum(population) / max(len(population), 1)
+        stddev = statistics.pstdev(population)
+        print("Feature {} Mean {} Standard Dev. {}".format(f, mean, stddev))
+
+
 def search_fonts(strin):
     disp = []
     for i in keys:
@@ -95,9 +116,29 @@ def find_feature(feature, value, sortkey=None):
             show_fonts(keys[:NUM_LIST])
         else:
             def sortkey(val):
-                return 1 if value == fonts[val].__dict__[feature] else 0
+                return 0 if value == fonts[val].__dict__[feature] else 1
             keys.sort(key=sortkey)
             show_fonts(keys[:NUM_LIST])
+
+
+def scale(feature, value):
+    """ Scales a value to its standard dev. across the font set. """
+    return (config.SCALE[feature][0] - value) / config.SCALE[feature][1]
+
+
+def find_features(features, values):
+    def sortkey(vals):
+        total = 0
+        for v, f in zip(values, features):
+            if type(v) in [float, int]:
+                # TODO feature scaling
+                total += abs(scale(f, (v - fonts[vals].__dict__[f])**2))
+            else:
+                total += 0 if v == fonts[vals].__dict__[f] else 1
+        return sqrt(total)
+    keys.sort(key=sortkey)
+    show_fonts(keys[:NUM_LIST])
+
 
 show_info(keys[randint(0, len(keys) - 1)])
 # font size entry
@@ -108,7 +149,7 @@ sizein = tk.Entry(root, textvariable=sv1, width=40)
 sizein.grid(sticky=tk.E+tk.N+tk.W, in_=root, row=0, column=1, padx=3, pady=3)
 root.geometry("1000x700")
 # show_fonts(keys[:NUM_LIST])
-find_feature("thickness", 1)
+find_features(["slant", "thickness"], [2, 10])
 # we want the expander to hold the window in place
 # expander = tk.Frame(root, width="400px")
 root.grid_propagate(0)
