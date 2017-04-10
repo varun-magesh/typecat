@@ -15,3 +15,4 @@ General:
 	The buttons are really jerky switch to frames
 	Add a scrollbar
 	After we delete the frame replace it with a blank one so the window doesn't get smaller then larger again
+	Phonetic typing/language extraction

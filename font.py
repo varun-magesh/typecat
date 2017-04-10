@@ -281,18 +281,20 @@ class Font(object):
     def name_panel(self, w=500, h=500, master=None):
         # TODO buttons are really jerky and dont' work when you click text or
         # image, only the side
-        frame = 0
+        button = 0
         if master is None:
-            frame = tk.Button(borderwidth=1, relief=tk.RAISED)
+            button = tk.Button(borderwidth=1, relief=tk.RAISED, width=w)
         else:
-            frame = tk.Button(master, borderwidth=1, relief=tk.RAISED)
+            button = tk.Button(master, borderwidth=1, relief=tk.RAISED, width=w)
+        # button.grid_propagate(0)
+        frame = tk.Label(button)
         hpad = int(h/100)
         wpad = int(w/100)
-        size = int(h/2)
+        size = int(h/1.5)
         self.set_size(size)
         text = "xgcZa"
         photo = f2i.multiline_tk(text, self.pilfont,
-                                 (int(w/4), int(h-2*hpad)),
+                                 (int(w/4), int(h+2*hpad)),
                                  padx=wpad, pady=hpad)
         label = tk.Label(relief=tk.SOLID, borderwidth=1)
         label.image = photo
@@ -304,15 +306,17 @@ class Font(object):
                          font=config.body_font(size),
                          padx=wpad, pady=hpad)
         title.grid(sticky=tk.E, in_=frame, columnspan=2, column=1, row=0)
-        return frame
+        frame.grid(in_=button)
+        return button
 
     def info_panel(self, w=500, h=500, master=None):
             font = 0
             if master is None:
-                font = tk.Frame(borderwidth=1, relief=tk.SOLID)
+                font = tk.Frame(borderwidth=1, relief=tk.SOLID,
+                                width=w, height=h)
             else:
-                font = tk.Frame(master, borderwidth=1, relief=tk.SOLID)
-
+                font = tk.Frame(master, borderwidth=1, relief=tk.SOLID,
+                                width=w, height=h)
             hpad = int(h / 100)
             wpad = int(w / 100)
 
@@ -349,7 +353,6 @@ class Font(object):
                 label.configure(image=photo)
                 label.grid(padx=wpad, pady=hpad, row=1, column=0,
                            sticky=tk.N, in_=font, columnspan=2)
-
 
             set_text(user_text)
 
