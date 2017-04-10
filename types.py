@@ -6,10 +6,13 @@ import pickle
 import os
 import config
 import statistics
+from filteroption import FilterOption
 
 fonts = dict()
 keys = list()
 
+COMPARABLE_FEATURES = ["slant", "thickness", "width", "height",
+                       "ratio", "thickness_variation"]
 
 def load_fonts():
     # TODO if you have a lot of fonts this might kill memory, we should load and
@@ -75,8 +78,8 @@ def show_fonts(inputlist):
         f.grid_propagate(0)
         f.configure(command=generate_command(name))
         # +1 for the search bar
-        f.grid(column=1, row=num + 1, sticky=tk.E+tk.N+tk.W+tk.S, in_=root,
-               padx=0, pady=0)
+        f.grid(column=1, row=num + 1 + len(COMPARABLE_FEATURES), sticky=tk.E+tk.N+tk.W+tk.S, in_=root,
+               padx=0, pady=0, columnspan=2)
         current_display.append(f)
 
 
@@ -88,9 +91,7 @@ def scale_features():
     be just fine.
     """
     features = fonts[keys[0]].__dict__.keys()
-    for f in features:
-        if type(fonts[keys[1]].__dict__[f]) not in [float, int, complex]:
-            continue
+    for f in COMPARABLE_FEATURES:
         population = []
         for k in keys:
             population.append(fonts[k].__dict__[f])
@@ -139,20 +140,28 @@ def find_features(features, values):
     keys.sort(key=sortkey)
     show_fonts(keys[:NUM_LIST])
 
+optionwidgets = []
+
+def find_options():
+    pass
+
+for num, f in enumerate(COMPARABLE_FEATURES):
+    p = FilterOption(root, f, find_options)
+    optionwidgets.append(p)
+    p.grid(column=1 if num % 2 == 0 else 2, row=int(.5*num)+1,
+           sticky=tk.N+tk.W, in_=root, padx=0, pady=0)
 
 show_info(keys[randint(0, len(keys) - 1)])
 # font size entry
 sv1 = tk.StringVar()
 sv1.trace("w", lambda n, idx, mode, sv=sv1:
           search_fonts(sv.get()))
-sizein = tk.Entry(root, textvariable=sv1, width=40)
-sizein.grid(sticky=tk.E+tk.N+tk.W, in_=root, row=0, column=1, padx=3, pady=3)
-root.geometry("1000x700")
-# show_fonts(keys[:NUM_LIST])
-find_features(["slant", "thickness"], [2, 10])
-# we want the expander to hold the window in place
-# expander = tk.Frame(root, width="400px")
+sizein = tk.Entry(root, textvariable=sv1, width=64)
+sizein.grid_propagate(0)
+sizein.grid(sticky=tk.E+tk.N+tk.W, in_=root, row=0, column=1, padx=3, pady=3,
+            columnspan=2)
+root.geometry("1030x700")
+show_fonts(keys[:NUM_LIST])
 root.grid_propagate(0)
-# expander.grid(column=1, row=0 + 1, sticky=tk.E+tk.N+tk.W+tk.S, in_=root)
 
 root.mainloop()

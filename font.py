@@ -287,7 +287,7 @@ class Font(object):
         else:
             button = tk.Button(master, borderwidth=1, relief=tk.RAISED, width=w)
         # button.grid_propagate(0)
-        frame = tk.Label(button)
+        # frame = tk.Label(button)
         hpad = int(h/100)
         wpad = int(w/100)
         size = int(h/1.5)
@@ -296,17 +296,8 @@ class Font(object):
         photo = f2i.multiline_tk(text, self.pilfont,
                                  (int(w/4), int(h+2*hpad)),
                                  padx=wpad, pady=hpad)
-        label = tk.Label(relief=tk.SOLID, borderwidth=1)
-        label.image = photo
-        label.configure(image=photo)
-        label.grid(padx=wpad, pady=hpad, row=0, column=0,
-                   sticky=tk.W, in_=frame, columnspan=1)
-
-        title = tk.Label(frame, text=self.name,
-                         font=config.body_font(size),
-                         padx=wpad, pady=hpad)
-        title.grid(sticky=tk.E, in_=frame, columnspan=2, column=1, row=0)
-        frame.grid(in_=button)
+        button.config(image=photo, text=self.name, compound=tk.LEFT, anchor=tk.W, font=config.body_font(int(size/1.2)))
+        button.image = photo
         return button
 
     def info_panel(self, w=500, h=500, master=None):

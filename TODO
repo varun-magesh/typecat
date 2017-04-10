@@ -18,3 +18,4 @@ General:
 	Phonetic typing/language extraction
 	IMPORTANT: ITALICS ARE RECOGNIZED AS SERIF
 	IMPORTANT: feature scaline when sorting
+	IMPORTANT: Clean up/refactor the crap that is types.py
