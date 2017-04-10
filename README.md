@@ -1,5 +1,6 @@
 # Types Font Palette
 ![Types Demo](types-demo.gif)
+
 Types is a font 'palette' that allows you to search for fonts and filter them based on other features including:
 * width
 * height
