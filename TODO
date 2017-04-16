@@ -1,22 +1,18 @@
-In file:
-	font.py:34:   curve quantification
-	font.py:137:  there are more categories than just serif and sans
-	font.py:147:  when we get linear reps of each letter use that instead
-	font.py:224:  this is probably really slow and inefficient
-	font.py:282:  buttons are really jerky and dont' work when you click text or
-	font.py:329:  varying colors and randomly chosen phrases
-	font.py:334:  not good practice
-	font.py:341:  automatically set font size to a reasonable level when
-	types.py:12:  if you have a lot of fonts this might kill memory, we should load and
-General:
-	Do centroid metrics with erode/dilate, the current method is pretty meh
-	Get distance/similarity between 2 fonts
-	Actually use metrics to filter stuff
-	The buttons are really jerky switch to frames
-	Add a scrollbar
-	After we delete the frame replace it with a blank one so the window doesn't get smaller then larger again
-	Phonetic typing/language extraction
-	IMPORTANT: ITALICS ARE RECOGNIZED AS SERIF
-	IMPORTANT: feature scaline when sorting
-	IMPORTANT: Clean up/refactor the crap that is types.py
-	Recognize when fonts can't be rendered in PIL or are rendered as boxes and skip those
+font.py:34:   curve quantification
+font.py:137:  there are more categories than just serif and sans
+font.py:147:  when we get linear reps of each letter use that instead
+font.py:224:  this is probably really slow and inefficient
+font.py:282:  buttons are really jerky and dont' work when you click text or
+font.py:329:  varying colors and randomly chosen phrases
+font.py:334:  not good practice
+font.py:341:  automatically set font size to a reasonable level when
+Do centroid metrics with erode/dilate, the current method is pretty meh
+Get distance/similarity between 2 fonts
+The buttons are really jerky switch to frames
+Add a scrollbar
+Phonetic typing/language extraction
+IMPORTANT: ITALICS ARE RECOGNIZED AS SERIF
+IMPORTANT: feature scaline when sorting
+IMPORTANT: Clean up/refactor the crap that is types.py
+Recognize when fonts can't be rendered in PIL or are rendered as boxes and skip those
+there could be a lot of optimizations; use redis and calculate stats to find a range instead of having to do full sorts
