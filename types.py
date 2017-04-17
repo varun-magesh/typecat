@@ -4,6 +4,7 @@ import manager
 from display.filteroption import OptionFrame
 from display.fontlist import FontList
 from display.infopanel import InfoPanel
+from display.searchbar import SearchBar
 
 root = tk.Tk()
 manager.load_cache()
@@ -21,7 +22,7 @@ def show_info(font):
 
 show_info(manager.keys[randint(0, len(manager.keys) - 1)])
 
-fontlist = FontList(show_info)
+fontlist = FontList(show_info, pady=5, padx=3)
 optionframe = OptionFrame(fontlist.refresh)
 
 fontlist.grid(row=2, column=1, sticky=tk.W+tk.N+tk.S+tk.E)
@@ -32,15 +33,13 @@ def entry_callback(s):
     manager.search_fonts(s)
     fontlist.refresh()
 
-sv1 = tk.StringVar()
-sv1.trace("w", lambda n, idx, mode, sv=sv1:
-          entry_callback(sv.get()))
-sizein = tk.Entry(root, textvariable=sv1, width=64)
+sizein = SearchBar(root, entry_callback, width=64)
 sizein.grid_propagate(0)
 sizein.grid(sticky=tk.E+tk.N+tk.W, in_=root, row=0, column=1, padx=3, pady=3,
             columnspan=2)
-root.geometry("1030x700")
-fontlist.refresh()
-root.grid_propagate(0)
 
+fontlist.refresh()
+
+root.geometry("1033x700")
+root.grid_propagate(0)
 root.mainloop()
