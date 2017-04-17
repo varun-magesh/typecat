@@ -1,8 +1,8 @@
 from random import randint
 import tkinter as tk
 import manager
-import config
-from typesdisplay import FilterOption
+from display.filteroption import OptionFrame
+from display.fontlist import FontList
 
 root = tk.Tk()
 manager.load_fonts()
@@ -18,33 +18,21 @@ def show_info(font):
     info_panel.grid_propagate(0)
     info_panel.configure(highlightbackground="#000000")
     # +1 for the top search bar
-    info_panel.grid(row=0, column=0, sticky=tk.W+tk.N+tk.S, rowspan=NUM_LIST+1)
+    info_panel.grid(row=0, column=0, sticky=tk.W+tk.N+tk.S, rowspan=4)
 
-
-optionwidgets = []
-def find_options():
-    features = []
-    values = []
-    for ow in optionwidgets:
-        if ow.checkbutton_state:
-            features.append(ow.feature)
-            map_stdev = ow.slider_state * config.SCALE[ow.feature][1] + \
-                config.SCALE[ow.feature][0]
-            values.append(map_stdev)
-    manager.find_features(features, values)
-    show_fonts(manager.keys[:NUM_LIST])
-for num, f in enumerate(manager.COMPARABLE_FEATURES):
-    p = FilterOption(root, f, find_options)
-    optionwidgets.append(p)
-    p.grid(column=1 if num % 2 == 0 else 2, row=int(.5*num)+1,
-           sticky=tk.N+tk.W, in_=root, padx=0, pady=0)
 
 show_info(manager.keys[randint(0, len(manager.keys) - 1)])
+
+fontlist = FontList(show_info)
+optionframe = OptionFrame(fontlist.refresh)
+
+fontlist.grid(row=2, column=1, sticky=tk.W+tk.N+tk.S+tk.E)
+optionframe.grid(row=1, column=1, sticky=tk.W+tk.N+tk.S+tk.E)
 
 
 def entry_callback(s):
     manager.search_fonts(s)
-    show_fonts(manager.keys[:NUM_LIST])
+    fontlist.refresh()
 
 sv1 = tk.StringVar()
 sv1.trace("w", lambda n, idx, mode, sv=sv1:
@@ -54,7 +42,7 @@ sizein.grid_propagate(0)
 sizein.grid(sticky=tk.E+tk.N+tk.W, in_=root, row=0, column=1, padx=3, pady=3,
             columnspan=2)
 root.geometry("1030x700")
-show_fonts(manager.keys[:NUM_LIST])
+fontlist.refresh()
 root.grid_propagate(0)
 
 root.mainloop()

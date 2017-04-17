@@ -1,4 +1,6 @@
 import tkinter as tk
+import manager
+import config
 
 
 class FilterOption(tk.Frame):
@@ -7,7 +9,7 @@ class FilterOption(tk.Frame):
     """
     def __init__(self, master, feature, callback):
 
-        tk.Frame.__init__(self, master)
+        super().__init__()
         self.feature = feature
         self.callback = callback
 
@@ -32,3 +34,28 @@ class FilterOption(tk.Frame):
         self.slider_state = self.slider.get()
         if self.checkbutton_state:
             self.callback()
+
+
+class OptionFrame(tk.Frame):
+
+    def find_options(self):
+        features = []
+        values = []
+        for ow in self.optionwidgets:
+            if ow.checkbutton_state:
+                features.append(ow.feature)
+                map_stdev = ow.slider_state * config.SCALE[ow.feature][1] + \
+                    config.SCALE[ow.feature][0]
+                values.append(map_stdev)
+        manager.find_features(features, values)
+        self.refresh()
+
+    def __init__(self, refresh_callback):
+        super().__init__()
+        self.optionwidgets = []
+        self.refresh = refresh_callback
+        for num, f in enumerate(manager.COMPARABLE_FEATURES):
+            p = FilterOption(self, f, self.find_options)
+            self.optionwidgets.append(p)
+            p.grid(column=1 if num % 2 == 0 else 2, row=int(.5*num),
+                   sticky=tk.N+tk.W, in_=self, padx=0, pady=0)
