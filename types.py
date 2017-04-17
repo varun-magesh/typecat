@@ -3,20 +3,18 @@ import tkinter as tk
 import manager
 from display.filteroption import OptionFrame
 from display.fontlist import FontList
+from display.infopanel import InfoPanel
 
 root = tk.Tk()
-manager.load_fonts()
+manager.load_cache()
 manager.keys.sort(key=str.lower)
 info_panel = tk.Frame()
 
 current_display = []
 
-
 def show_info(font):
-
-    info_panel = manager.fonts[font].display(500, 700)
+    info_panel = InfoPanel(font)
     info_panel.grid_propagate(0)
-    info_panel.configure(highlightbackground="#000000")
     # +1 for the top search bar
     info_panel.grid(row=0, column=0, sticky=tk.W+tk.N+tk.S, rowspan=4)
 
