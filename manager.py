@@ -3,6 +3,7 @@ import os
 import config
 import statistics
 from math import sqrt
+from font import RenderError
 
 keys = list()
 fonts = dict()
@@ -19,9 +20,13 @@ def load_cache():
         if f[-7:] != ".pickle":
             continue
         fontname = f[:-7]
-        fonts[fontname] = pickle.load(open("{}/{}".format(
-                                    config.CACHE_LOCATION, f), "rb"))
-        print("Loaded {} from cache".format(fonts[fontname].name))
+        try:
+            loadfont = pickle.load(open("{}/{}".format(
+                                          config.CACHE_LOCATION, f), "rb"))
+            fonts[fontname] = loadfont
+            print("Loaded {} from cache".format(fonts[fontname].name))
+        except RenderError:
+            print("Skipping {}, unable to render correctly.".format(fontname))
     global keys
     keys = list(fonts.keys())
 
@@ -34,10 +39,11 @@ def load_files():
                 if idx != -1 and d[idx:] in config.FONT_FILE_EXTENSIONS:
                     try:
                         fontname = Font.extract_name(os.path.join(dirpath, d))
-                        if fontname not in fonts:
-                            g = Font(os.path.join(dirpath, d))
-                            fonts[fontname] = g
-                            g.save()
+                        g = Font(os.path.join(dirpath, d))
+                        fonts[fontname] = g
+                        g.save()
+                        print("Loaded {} from file".format(
+                              g.name))
                     except Exception:
                         print("Failed to read font at path {}".format(
                                       os.path.join(dirpath, d)))

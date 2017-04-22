@@ -6,6 +6,9 @@ from math import sin, cos, pi, sqrt
 import pickle
 
 
+class RenderError(Exception):
+    pass
+
 class Font(object):
     """
     Stores cached information about fonts in memory.
@@ -71,7 +74,10 @@ class Font(object):
 
     def open_path(self):
         self.pilfont = ImageFont.truetype(self.path, size=self.size)
-
+        a = f2i.single_pil("A", self.pilfont, fore=1, back=0)[0]
+        b = f2i.single_pil("B", self.pilfont, fore=1, back=0)[0]
+        if a == b:
+            raise RenderError("Could not render {} properly.".format(self.name))
     def extract_PIL(self):
         """ Extracts all data already collected by PIL fonts """
         self.family = self.pilfont.font.family
@@ -145,7 +151,7 @@ class Font(object):
         # should one use symmetrics or the whole alphabet? Who knows
         # also TODO, when we get linear reps of each letter use that instead
         slstr = Font.ALPHABET + Font.ALPHABET.upper()
-        for c in list(slstr):
+        for c in list(Font.SYMMETRIC):
             xp = []
             yp = []
             img = f2i.single_pil(c, self.pilfont)[0]

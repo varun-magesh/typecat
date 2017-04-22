@@ -13,6 +13,7 @@ info_panel = tk.Frame()
 
 current_display = []
 
+
 def show_info(font):
     info_panel = InfoPanel(font)
     info_panel.grid_propagate(0)
@@ -32,6 +33,8 @@ menubar = tk.Menu(root)
 root.config(menu=menubar)
 filemenu = tk.Menu(menubar)
 menubar.add_cascade(label='File', menu=filemenu)
+menubar.add_command(label='Reload', command=manager.load_files)
+
 
 filemenu.add_command(label='Settings', command=None)
 filemenu.add_command(label='Refresh Font Files from Path', command=None)
