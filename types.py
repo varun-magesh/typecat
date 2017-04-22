@@ -28,6 +28,15 @@ optionframe = OptionFrame(fontlist.refresh)
 fontlist.grid(row=2, column=1, sticky=tk.W+tk.N+tk.S+tk.E)
 optionframe.grid(row=1, column=1, sticky=tk.W+tk.N+tk.S+tk.E)
 
+menubar = tk.Menu(root)
+root.config(menu=menubar)
+filemenu = tk.Menu(menubar)
+menubar.add_cascade(label='File', menu=filemenu)
+
+filemenu.add_command(label='Settings', command=None)
+filemenu.add_command(label='Refresh Font Files from Path', command=None)
+filemenu.add_separator()
+
 
 def entry_callback(s):
     manager.search_fonts(s)

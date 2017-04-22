@@ -16,6 +16,8 @@ def load_cache():
     # del fonts as necessary.
     cachedfonts = os.listdir(config.CACHE_LOCATION)
     for f in cachedfonts:
+        if f[-7:] != ".pickle":
+            continue
         fontname = f[:-7]
         fonts[fontname] = pickle.load(open("{}/{}".format(
                                     config.CACHE_LOCATION, f), "rb"))

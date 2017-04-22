@@ -1,18 +1,48 @@
 from os.path import expanduser, isfile
 from os import makedirs
 from sys import platform as _platform
-# can't actually construct a tkinter font because you need a root window
+from configparser import ConfigParser
+
+
 PIL_BACKGROUND = (255, 255, 239)
 CACHE_LOCATION = expanduser("~/.types/")
 FONT_DIRS = []
 if _platform == "linux" or _platform == "linux2":
-	FONT_DIRS = [expanduser("~/.fonts"), "/usr/share/fonts"]
+        FONT_DIRS = [expanduser("~/.fonts"), "/usr/share/fonts"]
 elif _platform == "darwin":
-	FONT_DIRS = [expanduser("~/Library/Fonts"), "/Library/Fonts", " /System/Library/Fonts"]
+        FONT_DIRS = [expanduser("~/Library/Fonts"), "/Library/Fonts",
+                     "/System/Library/Fonts"]
 elif _platform == "win32":
-	print("According to superuser.com, C:\\Windows\\Fonts is a symlink to something in SxS. Python should follow the symlink right though. If all you see is this message and nothing else like 'Loaded font from...' then it didn't.")
-	FONT_DIRS = ["C:\\Windows\\Fonts"]
+        print("""According to superuser.com, C:\\Windows\\Fonts is a symlink to
+              something in SxS. Python should follow the symlink right though.
+              If all you see is this message and nothing else like
+              'Loaded font from...' then it didn't.""")
+        FONT_DIRS = ["C:\\Windows\\Fonts"]
 FONT_FILE_EXTENSIONS = [".ttf", ".otf"]
+
+conf = ConfigParser()
+CONFIG_LOCATION = expanduser("~/.types/types.ini")
+LOC = "System Locations"
+
+try:
+    conf.read(CONFIG_LOCATION)
+    FONT_DIRS = ",".split(conf.get(LOC, "Fonts").strip())
+    CONFIG_LOCATION = conf.get(LOC, "Config File")
+    CACHE_LOCATION = conf.get(LOC, "Cache")
+    #FIXME might cause issues if there are commas in the filename
+    FONT_FILE_EXTENSIONS = ",".split(conf.get("Misc", "Font File Extensions"))
+except Exception:
+    print("ERROR invalid config file, creating a new one at {}".format(
+          CONFIG_LOCATION))
+    conf.add_section(LOC)
+    conf.set(LOC, "Fonts", ",".join(FONT_DIRS))
+    conf.set(LOC, "Config File", CONFIG_LOCATION)
+    conf.set(LOC, "Cache", CACHE_LOCATION)
+    conf.add_section("Misc")
+    conf.set("Misc", "Font File Extensions",
+             ",".join(FONT_FILE_EXTENSIONS))
+    with open(CONFIG_LOCATION, 'w') as fileconf:
+        conf.write(fileconf)
 # all scales are at size 50
 # Mean, Stddev
 SCALE = {}

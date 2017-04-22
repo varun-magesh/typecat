@@ -34,6 +34,7 @@ class FontList(tk.Frame):
         super().__init__(master, **options)
         self.current_display = []
         self.num_list = num_list
+        self.start = 0
         self.refresh()
         self.show_info = info_callback
 
@@ -42,7 +43,8 @@ class FontList(tk.Frame):
             i.grid_forget()
 
         self.current_display = []
-        for num, name in enumerate(manager.keys[:self.num_list]):
+        for num, name in enumerate(manager.keys[
+                                   self.start:self.start + self.num_list]):
             # +1 for the search bar
             f = FontButton(name, self.generate_command(name), 500, 25)
             f.grid(column=1, row=num, in_=self,
