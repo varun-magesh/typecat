@@ -5,7 +5,7 @@ from configparser import ConfigParser
 
 
 PIL_BACKGROUND = (255, 255, 239)
-CACHE_LOCATION = expanduser("~/.types/")
+CACHE_LOCATION = expanduser("~/.typecat/")
 FONT_DIRS = []
 if _platform == "linux" or _platform == "linux2":
         FONT_DIRS = [expanduser("~/.fonts"), "/usr/share/fonts"]
@@ -21,7 +21,7 @@ elif _platform == "win32":
 FONT_FILE_EXTENSIONS = [".ttf", ".otf"]
 
 conf = ConfigParser()
-CONFIG_LOCATION = expanduser("~/.types/types.ini")
+CONFIG_LOCATION = expanduser("~/.typecat/typecat.ini")
 LOC = "System Locations"
 
 try:
