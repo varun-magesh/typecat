@@ -5,8 +5,19 @@ from display.filteroption import OptionFrame
 from display.fontlist import FontList
 from display.infopanel import InfoPanel
 from display.searchbar import SearchBar
+from display.configwindow import ConfigWindow
+import config
+
+
+if not config.read_config():
+    root = tk.Tk()
+    root.wm_title("Setup")
+    cw = ConfigWindow(root, root.quit)
+    cw.grid(in_=root)
+    root.mainloop()
 
 root = tk.Tk()
+
 manager.load_cache()
 manager.keys.sort(key=str.lower)
 info_panel = tk.Frame()

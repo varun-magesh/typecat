@@ -1,4 +1,4 @@
-from os.path import expanduser, isfile
+from os.path import expanduser, isfile, isdir
 from os import makedirs
 from sys import platform as _platform
 from configparser import ConfigParser
@@ -21,28 +21,38 @@ elif _platform == "win32":
 FONT_FILE_EXTENSIONS = [".ttf", ".otf"]
 
 conf = ConfigParser()
-CONFIG_LOCATION = expanduser("~/.typecat/typecat.ini")
+CONFIG_NAME = "typecat.ini"
+CONFIG_LOCATION = CACHE_LOCATION + CONFIG_NAME
 LOC = "System Locations"
 
-try:
-    conf.read(CONFIG_LOCATION)
-    FONT_DIRS = ",".split(conf.get(LOC, "Fonts").strip())
-    CONFIG_LOCATION = conf.get(LOC, "Config File")
-    CACHE_LOCATION = conf.get(LOC, "Cache")
-    #FIXME might cause issues if there are commas in the filename
-    FONT_FILE_EXTENSIONS = ",".split(conf.get("Misc", "Font File Extensions"))
-except Exception:
-    print("ERROR invalid config file, creating a new one at {}".format(
-          CONFIG_LOCATION))
-    conf.add_section(LOC)
-    conf.set(LOC, "Fonts", ",".join(FONT_DIRS))
-    conf.set(LOC, "Config File", CONFIG_LOCATION)
-    conf.set(LOC, "Cache", CACHE_LOCATION)
-    conf.add_section("Misc")
-    conf.set("Misc", "Font File Extensions",
-             ",".join(FONT_FILE_EXTENSIONS))
-    with open(CONFIG_LOCATION, 'w') as fileconf:
-        conf.write(fileconf)
+
+def read_config():
+    """ Attempts to read config and returns success """
+    global conf, CACHE_LOCATION, CONFIG_LOCATION
+    if isdir(CACHE_LOCATION):
+        try:
+            conf.read(CONFIG_LOCATION)
+            FONT_DIRS = ",".split(conf.get(LOC, "Fonts").strip())
+            CONFIG_LOCATION = conf.get(LOC, "Config File")
+            CACHE_LOCATION = conf.get(LOC, "Cache")
+            # FIXME might cause issues if there are commas in the filename
+            FONT_FILE_EXTENSIONS = ",".split(conf.get("Misc",
+                                                      "Font File Extensions"))
+        except Exception:
+            print("ERROR invalid config file, creating a new one at {}".format(
+                  CONFIG_LOCATION))
+            conf.add_section(LOC)
+            conf.set(LOC, "Fonts", ",".join(FONT_DIRS))
+            conf.set(LOC, "Config File", CONFIG_LOCATION)
+            conf.set(LOC, "Cache", CACHE_LOCATION)
+            conf.add_section("Misc")
+            conf.set("Misc", "Font File Extensions",
+                     ",".join(FONT_FILE_EXTENSIONS))
+            with open(CONFIG_LOCATION, 'w') as fileconf:
+                conf.write(fileconf)
+        return True
+    else:
+        return False
 # all scales are at size 50
 # Mean, Stddev
 SCALE = {}
