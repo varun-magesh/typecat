@@ -2,6 +2,7 @@ import tkinter as tk
 import config
 import tkinter.filedialog as fd
 from os.path import isdir
+import manager
 from os import mkdir
 
 
@@ -56,6 +57,7 @@ class ConfigWindow(tk.Frame):
                 config.FONT_DIRS.append(i.get_file())
         if not isdir(config.CACHE_LOCATION):
             mkdir(config.CACHE_LOCATION)
+        manager.load_files()
         self.exit()
 
     def __init__(self, root, exit):

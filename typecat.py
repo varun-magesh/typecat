@@ -13,6 +13,8 @@ if not config.read_config():
     root = tk.Tk()
     root.wm_title("Setup")
     cw = ConfigWindow(root, root.quit)
+    l = tk.Label(text="Initial Setup")
+    l.grid(in_=root)
     cw.grid(in_=root)
     root.mainloop()
 

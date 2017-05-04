@@ -28,7 +28,8 @@ LOC = "System Locations"
 
 def read_config():
     """ Attempts to read config and returns success """
-    global conf, CACHE_LOCATION, CONFIG_LOCATION
+    global conf, CACHE_LOCATION, CONFIG_LOCATION, FONT_DIRS, LOC, \
+        FONT_FILE_EXTENSIONS
     if isdir(CACHE_LOCATION):
         try:
             conf.read(CONFIG_LOCATION)
