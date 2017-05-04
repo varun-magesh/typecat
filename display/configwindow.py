@@ -15,7 +15,7 @@ class FileChooser(tk.Frame):
             cachetitle.grid(sticky=tk.W, row=0, column=0)
 
         self.svtext = tk.StringVar()
-        if default[-1] != "/":
+        if len(default) > 0 and default[-1] != "/":
             default += "/"
         print(default)
 
