@@ -3,7 +3,7 @@ import os
 import config
 import statistics
 from math import sqrt
-from font import RenderError
+from font import RenderError, Font
 
 keys = list()
 fonts = dict()
@@ -44,9 +44,10 @@ def load_files():
                         g.save()
                         print("Loaded {} from file".format(
                               g.name))
-                    except Exception:
-                        print("Failed to read font at path {}".format(
-                                      os.path.join(dirpath, d)))
+                    except Exception as e:
+                        print(("Failed to read font at path {}"
+                               "with exception {}").format(
+                                      os.path.join(dirpath, d), e))
     global keys
     keys = list(fonts.keys())
 

@@ -76,8 +76,9 @@ class Font(object):
         self.pilfont = ImageFont.truetype(self.path, size=self.size)
         a = f2i.single_pil("A", self.pilfont, fore=1, back=0)[0]
         b = f2i.single_pil("B", self.pilfont, fore=1, back=0)[0]
-        if a == b:
-            raise RenderError("Could not render {} properly.".format(self.name))
+        # if a == b:
+            # print("Could not render {} properly.".format(self.name))
+            # raise RenderError("Could not render {} properly.".format(self.name))
     def extract_PIL(self):
         """ Extracts all data already collected by PIL fonts """
         self.family = self.pilfont.font.family
