@@ -1,3 +1,4 @@
+
 font.py:34:   curve quantification
 font.py:137:  there are more categories than just serif and sans
 font.py:147:  when we get linear reps of each letter use that instead
@@ -16,3 +17,4 @@ IMPORTANT: feature scaline when sorting
 IMPORTANT: Clean up/refactor the crap that is types.py
 Recognize when fonts can't be rendered in PIL or are rendered as boxes and skip those
 there could be a lot of optimizations; use redis and calculate stats to find a range instead of having to do full sorts
+Expand config window when adding more font dirs
