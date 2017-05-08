@@ -1,9 +1,12 @@
+import gi
 import tkinter as tk
 import config
 import tkinter.filedialog as fd
 from os.path import isdir
 import manager
 from os import mkdir
+gi.require_version('Gtk', '3.0')
+from gi.repository import Gtk
 
 
 class FileChooser(tk.Frame):
@@ -32,6 +35,29 @@ class FileChooser(tk.Frame):
 
     def get_file(self):
         return self.svtext.get()
+
+class GtkFileChooser(Gtk.Box):
+    def __init__(self, title, defaultPath):
+        builder = Gtk.Builder()
+
+        builder.add_from_file("filechooser.glade")
+        with builder.get_object as b:
+            b("pathdesc").set_text(title)
+            b("pathbox").set_text(defaultPath)
+            b("browsebutton").connect("clicked", self.openBrowser(b("pathbox")))
+
+            def openBrowser(textfield):
+                dialog = Gtk.FileChooserDialog("Choose a directory", self,
+                                               Gtk.FileChooserAction.SELECT_FOLDER,
+                                               (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
+                                                "Select", Gtk.ResponseType.OK))
+                dialog.set_default_size(800, 400)
+                resp = dialog.run()
+                if resp == Gtk.ResponseType.OK:
+                    textfield.set_text(dialog.get_filename())
+            def get_file(self):
+                return b("pathbox").get_text()
+
 
 
 class RemovableFileChooser(tk.Frame):
