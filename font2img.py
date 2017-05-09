@@ -1,3 +1,4 @@
+import PIL
 from PIL import Image, ImageDraw, ImageTk
 import config
 
