@@ -15,6 +15,7 @@ class GtkFileChooser(Gtk.Box):
         Gtk.Box.__init__(self, orientation=Gtk.Orientation.VERTICAL, spacing=6)
         self.pathdesc = Gtk.Label()
         self.pathdesc.set_markup("<b>" + title + "</b>")
+        self.pathdesc.set_alignment(0,0)
         self.entrybox = Gtk.Entry()
         self.entrybox.set_text(default)
         self.browsebutton = Gtk.Button("Browse")
@@ -40,10 +41,11 @@ class GtkFileChooser(Gtk.Box):
 class RemovableGtkFileChooser(Gtk.Box):
     def __init__(self, title, default):
         Gtk.Box.__init__(self, orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+
         self.fc = GtkFileChooser(title, default)
         self.pack_start(self.fc, True, True, 0)
         removebutt = Gtk.Button("X")
-        self.fc.box1.pack_end(removebutt, True, True, 0)
+        self.pack_end(removebutt, False, False, 0)
         removebutt.connect("clicked", self.killme)
 
     def killme(self, button):
@@ -68,21 +70,37 @@ class GtkConfigWindow(Gtk.Window):
     def __init__(self):
         Gtk.Window.__init__(self, title="Initial Setup")
         self.box1 = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
-        self.cache = GtkFileChooser(self, "Cache Location", config.CACHE_LOCATION)
-        self.box1.pack_start(self.cache, True, True, 0)
+        self.box1.set_border_width(10)
+        self.cache = GtkFileChooser("Cache Location", config.CACHE_LOCATION)
+        self.box1.pack_start(self.cache, False, True, 0)
         self.add(self.box1)
         self.font_dirs = []
-        self.label = Gtk.Label.set_markup("<b>Font Directories</b>")
-        self.label.set_alignment(xscale=0)
-        self.box1.pack_end(self.label, True, True, 0)
-        addbutton = Gtk.Button("Add more:")
-        addbutton.connect("clicked")
-        okButton = Gtk.Button("Done")
-        okButton.connect("clicked", self.finish)
+        self.label = Gtk.Label()
+        self.label.set_markup("<b>Font Directories</b>")
+        self.label.set_alignment(0, 0)
+        self.box1.pack_start(self.label, False, True, 0)
+        self.addbutton = Gtk.Button("Add more:")
+        self.addbutton.set_alignment(Gtk.Align.END, Gtk.Align.END)
+        self.addbutton.connect("clicked", self.add_chooser)
+        self.okButton = Gtk.Button("Done")
+        self.okButton.connect("clicked", self.finish)
+
+        for i in config.FONT_DIRS:
+            self.add_chooser(i)
+
+    def add_chooser(self, filename=""):
+        if (filename.__class__ == Gtk.Button):
+            filename="" #FIXME bad practice
+        self.box1.remove(self.addbutton)
+        fc = RemovableGtkFileChooser("", filename)
+        self.font_dirs.append(fc)
+        self.box1.pack_start(fc, True, True, 0)
+        self.box1.pack_end(self.addbutton, False, False, 0)
 
 
-win = Gtk.Window()
-win.add(RemovableGtkFileChooser("hey", "hey"))
+
+
+win = GtkConfigWindow()
 win.show_all()
 win.connect("delete-event", Gtk.main_quit)
 Gtk.main()
