@@ -5,18 +5,17 @@ from display.filteroption import OptionFrame
 from display.fontlist import FontList
 from display.infopanel import InfoPanel
 from display.searchbar import SearchBar
-from display.configwindow import ConfigWindow
+from display.configwindow import GtkConfigWindow
+from gi.repository import Gtk
 import config
 
 
 if not config.read_config():
-    root = tk.Tk()
-    root.wm_title("Setup")
-    cw = ConfigWindow(root, root.quit)
-    l = tk.Label(text="Initial Setup")
-    l.grid(in_=root)
-    cw.grid(in_=root)
-    root.mainloop()
+    print("opening cw")
+    cw = GtkConfigWindow()
+    cw.show_all()
+    cw.connect("delete-event", Gtk.main_quit)
+    Gtk.main()
 
 root = tk.Tk()
 
