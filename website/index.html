@@ -10,6 +10,10 @@
 		h1, h2, h3, h4, h5, h6 {
 				font-family: "Roboto Slab", sans-serif
 		}
+  img {
+   max-width: 100%;
+   max-height: 100%;
+  }
 	</style>
 	<!--js stuff-->
 	<script>
@@ -39,42 +43,51 @@
 			<div class="w3-container">
 				<button onclick="accordion('Sans Serif')" class="w3-button w3-block w3-left-align"> Sans Serif </button>
 				<div id="Sans Serif" class="w3-container w3-hide">
-					<button class="w3-btn w3-blue-gray w3-block w3-margin">Humanist</button>
-					<button class="w3-btn w3-blue-gray w3-block w3-margin">Geometric</button>
-					<button class="w3-btn w3-blue-gray w3-block w3-margin">Grotesque</button>
-					<button class="w3-btn w3-blue-gray w3-block w3-margin">Neo-Grotesque</button>
+
+					<button class="w3-button w3-teal w3-block w3-padding-small w3-twothird">Submit font as Humanist</button>
+					<button onclick="accordion('Humanist')" class="w3-button w3-blue w3-block w3-padding-small w3-third">More about Humanist</button>
+     <div id="Humanist" class="w3-panel w3-pale-blue w3-hide">
+       <div class="w3-container w3-half">
+        <h3> About Humanist Fonts </h3>
+        <p>Humanist typefaces, instead of deriving from the 19th century grotesque faces, relate to the earlier, classical handwritten monumental Roman capitals 
+        and a lowercase similar in form to the Carolingian script. Note that the term "humanist" is being used here in combination with sans to create a subcategory,
+        and these typefaces only slightly resemble those in the humanist serif category.</p>
+       </div>
+       <div class="w3-card w3-half">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/48/GillSansEG.svg/396px-GillSansEG.svg.png" alt="Humanist">
+      </div> 
+     </div> 
+
+					<button class="w3-button w3-teal w3-block w3-padding-small w3-twothird">Submit font as Geometric</button>
+					<button onclick="accordion('Geomtric')" class="w3-button w3-blue w3-block w3-padding-small w3-third">More about Geometric</button>
+					<button class="w3-button w3-teal w3-block w3-padding-small w3-twothird">Submit font as Grotesque</button>
+					<button onclick="accordion('Grotesque')" class="w3-button w3-blue w3-block w3-padding-small w3-third">More about Grotesque</button>
+					<button class="w3-button w3-teal w3-block w3-padding-small w3-twothird">Submit font as Neo-Grotesque</button>
+					<button onclick="accordion('Neo-Grotesque')" class="w3-button w3-blue w3-block w3-padding-small w3-third">More about Neo-Grotesque</button>
 				</div>
 				<button onclick="accordion('Serif')" class="w3-button w3-block w3-left-align"> Serif </button>
 				<div id="Serif" class="w3-container w3-hide">
-					<button class="w3-btn w3-blue-gray w3-block w3-margin">Humanist</button>
-					<button class="w3-btn w3-blue-gray w3-block w3-margin">Transitional</button>
-					<button class="w3-btn w3-blue-gray w3-block w3-margin">Didone</button>
-					<button class="w3-btn w3-blue-gray w3-block w3-margin">Mechanistic</button>
+					<button class="w3-button w3-blue-gray w3-block w3-padding-small w3-twothird">Humanist</button>
+					<button class="w3-button w3-blue-gray w3-block w3-padding-small w3-twothird">Garalde</button>
+					<button class="w3-button w3-blue-gray w3-block w3-padding-small w3-twothird">Transitional</button>
+					<button class="w3-button w3-blue-gray w3-block w3-padding-small w3-twothird">Didone</button>
+					<button class="w3-button w3-blue-gray w3-block w3-padding-small w3-twothird">Mechanistic</button>
 				</div>
 				<button onclick="accordion('Calligraphic')" class="w3-button w3-block w3-left-align"> Calligraphic </button>
 				<div id="Calligraphic" class="w3-container w3-hide">
-					<button class="w3-btn w3-blue-gray w3-block w3-margin">Glyphic</button>
-					<button class="w3-btn w3-blue-gray w3-block w3-margin">Script</button>
-					<button class="w3-btn w3-blue-gray w3-block w3-margin">Informal</button>
-					<button class="w3-btn w3-blue-gray w3-block w3-margin">Blackletter</button>
+					<button class="w3-button w3-blue-gray w3-block w3-padding-small w3-twothird">Glyphic</button>
+					<button class="w3-button w3-blue-gray w3-block w3-padding-small w3-twothird">Script</button>
+					<button class="w3-button w3-blue-gray w3-block w3-padding-small w3-twothird">Informal</button>
+					<button class="w3-button w3-blue-gray w3-block w3-padding-small w3-twothird">Blackletter</button>
 				</div>
 				<button onclick="accordion('Decorative')" class="w3-button w3-block w3-left-align"> Decorative </button>
 				<div id="Decorative" class="w3-container w3-hide">
-					<button class="w3-btn w3-blue-gray w3-block w3-margin">Blocky</button>
-					<button class="w3-btn w3-blue-gray w3-block w3-margin">Informal/Funny</button>
-					<button class="w3-btn w3-blue-gray w3-block w3-margin">Icon/Pictorial</button>
-					<button class="w3-btn w3-blue-gray w3-block w3-margin">Miscellaneous</button>
+					<button class="w3-button w3-blue-gray w3-block w3-padding-small w3-twothird">Blocky</button>
+					<button class="w3-button w3-blue-gray w3-block w3-padding-small w3-twothird">Informal/Funny</button>
+					<button class="w3-button w3-blue-gray w3-block w3-padding-small w3-twothird">Icon/Pictorial</button>
+					<button class="w3-button w3-blue-gray w3-block w3-padding-small w3-twothird">Miscellaneous</button>
 				</div>
-				<button onclick="location.href='#about'" class="w3-button w3-pink w3-margin w3-left"> What is this? </button>
 			</div>
 		</div> 
-	</div>
-	<div class="w3-panel">
-	 <div class="w3-card">
-	 <a name="about">
-			<div class="w3-container">
-				Stuff.
-			</div>
-		</div>
 	</div>
 </html>
