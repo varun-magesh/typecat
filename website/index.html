@@ -2,9 +2,69 @@
 <html>
  <meta name="viewport" content="width=device-width, initial-scale=1">
  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
- <div class="w3-container w3-center">
-  <div class="w3-card-4">
-   <p>w3-card</p>
-  </div> 
+	<link href="https://fonts.googleapis.com/css?family=Roboto|Roboto+Slab" rel="stylesheet">
+	<style>
+		html, body {
+			font-family: "Roboto", sans-serif;
+		}
+		h1, h2, h3, h4, h5, h6 {
+				font-family: "Roboto Slab", sans-serif
+		}
+	</style>
+	<!--js stuff-->
+	<script>
+		function accordion(id) {
+						var x = document.getElementById(id);
+						if (x.className.indexOf("w3-show") == -1) {
+										x.className += " w3-show";
+						} else {
+										x.className = x.className.replace(" w3-show", "");
+						}
+		}
+	</script>
+ <!--title-->
+ <div class="w3-container w3-blue-gray w3-center">
+  <h1>Typecat Font Data Collection </h1>
  </div>
+ <!--the two cards-->
+	<div class="w3-panel w3-cell w3-center w3-half">
+		<div class="w3-card-4 w3-bottombar w3-border-blue-gray">
+			<div class="w3-container">
+				<p>w3-card</p>
+			</div>
+		</div> 
+	</div>
+	<div class="w3-panel w3-cell w3-center w3-half">
+		<div class="w3-card-4 w3-bottombar w3-border-blue-gray">
+			<div class="w3-container">
+				<button onclick="accordion('Sans Serif')" class="w3-button w3-block w3-left-align"> Sans Serif </button>
+				<div id="Sans Serif" class="w3-container w3-hide">
+					<button class="w3-btn w3-blue-gray w3-block w3-margin">Humanist</button>
+					<button class="w3-btn w3-blue-gray w3-block w3-margin">Geometric</button>
+					<button class="w3-btn w3-blue-gray w3-block w3-margin">Grotesque</button>
+				</div>
+				<button onclick="accordion('Serif')" class="w3-button w3-block w3-left-align"> Serif </button>
+				<div id="Serif" class="w3-container w3-hide">
+					<button class="w3-btn w3-blue-gray w3-block w3-margin">Humanist</button>
+					<button class="w3-btn w3-blue-gray w3-block w3-margin">Transitional</button>
+					<button class="w3-btn w3-blue-gray w3-block w3-margin">Didone</button>
+					<button class="w3-btn w3-blue-gray w3-block w3-margin">Mechanistic</button>
+				</div>
+				<button onclick="accordion('Calligraphic')" class="w3-button w3-block w3-left-align"> Calligraphic </button>
+				<div id="Calligraphic" class="w3-container w3-hide">
+					<button class="w3-btn w3-blue-gray w3-block w3-margin">Glyphic</button>
+					<button class="w3-btn w3-blue-gray w3-block w3-margin">Script</button>
+					<button class="w3-btn w3-blue-gray w3-block w3-margin">Informal</button>
+					<button class="w3-btn w3-blue-gray w3-block w3-margin">Blackletter</button>
+				</div>
+				<button onclick="accordion('Decorative')" class="w3-button w3-block w3-left-align"> Decorative </button>
+				<div id="Decorative" class="w3-container w3-hide">
+					<button class="w3-btn w3-blue-gray w3-block w3-margin">Blocky</button>
+					<button class="w3-btn w3-blue-gray w3-block w3-margin">Informal/Funny</button>
+					<button class="w3-btn w3-blue-gray w3-block w3-margin">Icon/Pictorial</button>
+					<button class="w3-btn w3-blue-gray w3-block w3-margin">Miscellaneous</button>
+				</div>
+			</div>
+		</div> 
+	</div>
 </html>
