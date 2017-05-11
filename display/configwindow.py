@@ -103,21 +103,36 @@ class GtkConfigWindow(Gtk.Window):
         self.box1.pack_start(fc, False, False, 0)
         self.box1.show_all()
 
-class GtkLoadingWindow(Gtk.Window):
+class GtkFontLoadingWindow(Gtk.Window):
     def __init__(self):
-        self.set_title("Loading Fonts into Cache")
+        Gtk.Window.__init__(self)
+        self.set_title("typecat")
         self.set_border_width(10)
         self.box1 = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
-        self.label = Gtk.Label("This may take a few minutes, please wait...")
+        self.label = Gtk.Label()
+        self.label.set_markup("<b>Loading fonts</b>\nThis may take a few minutes, please wait...")
         self.label.set_alignment(0, 0)
         self.progressbar = Gtk.ProgressBar()
+        self.currentfont = Gtk.Label()
+        self.currentfont.set_alignment(0,0)
+        self.cancelbutton = Gtk.Button.new_from_stock(Gtk.STOCK_CANCEL)
+        self.cancelbutton.connect("clicked", self.cancel)
+        self.box1.pack_start(self.label, False, False, 0)
+        self.box1.pack_end(self.progressbar, False, False, 0)
+        self.box1.pack_end(self.currentfont, False, False, 0)
+        self.add(self.box1)
+
+    def update_bar(self, percent, current_loading):
+        self.currentfont.set_text(current_loading);
+        self.progressbar.set_fraction(percent)
 
 
 
 
 
 
-# win = GtkConfigWindow()
+#
+# win = GtkLoadingWindow("foo")
 # win.show_all()
 # win.connect("delete-event", Gtk.main_quit)
 # Gtk.main()

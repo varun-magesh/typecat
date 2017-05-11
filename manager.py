@@ -4,6 +4,8 @@ import config
 import statistics
 from math import sqrt
 from font import RenderError, Font
+from display.configwindow import GtkLoadingWindow, GtkConfigWindow
+from gi.repository import Gtk
 
 keys = list()
 fonts = dict()
@@ -13,9 +15,9 @@ COMPARABLE_FEATURES = ["slant", "thickness", "width", "height",
 
 total_files = 0
 loaded_files = 0
+current_file_name = ""
 total_cache = 0
 loaded_cache = 0
-
 
 def load_cache():
     # TODO if you have a lot of fonts this might kill memory, we should load and
@@ -40,6 +42,7 @@ def load_cache():
 
 
 def load_files():
+
     fontpaths = []
     global total_files, loaded_files
     for fontdir in config.FONT_DIRS:
@@ -52,6 +55,7 @@ def load_files():
     for f in fontpaths:
         try:
             fontname = Font.extract_name(f)
+            current_file_name = fontname
             g = Font(f)
             fonts[fontname] = g
             g.save()

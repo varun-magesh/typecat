@@ -16,6 +16,9 @@ if not config.read_config():
     cw.show_all()
     cw.connect("delete-event", Gtk.main_quit)
     Gtk.main()
+    manager.load_fonts()
+
+
 
 root = tk.Tk()
 
