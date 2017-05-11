@@ -6,15 +6,14 @@ font.py:224:  this is probably really slow and inefficient
 font.py:282:  buttons are really jerky and dont' work when you click text or
 font.py:329:  varying colors and randomly chosen phrases
 font.py:334:  not good practice
-font.py:341:  automatically set font size to a reasonable level when
 Do centroid metrics with erode/dilate, the current method is pretty meh
 Get distance/similarity between 2 fonts
-The buttons are really jerky switch to frames
 Add a scrollbar
 Phonetic typing/language extraction
 IMPORTANT: ITALICS ARE RECOGNIZED AS SERIF
-IMPORTANT: feature scaline when sorting
-IMPORTANT: Clean up/refactor the crap that is types.py
 Recognize when fonts can't be rendered in PIL or are rendered as boxes and skip those
 there could be a lot of optimizations; use redis and calculate stats to find a range instead of having to do full sorts
+go over with pylint
+font metadata and 'About' text
+
 Expand config window when adding more font dirs

@@ -11,11 +11,18 @@ fonts = dict()
 COMPARABLE_FEATURES = ["slant", "thickness", "width", "height",
                        "ratio", "thickness_variation"]
 
+total_files = 0
+loaded_files = 0
+total_cache = 0
+loaded_cache = 0
+
 
 def load_cache():
     # TODO if you have a lot of fonts this might kill memory, we should load and
     # del fonts as necessary.
+    global total_cache, loaded_cache
     cachedfonts = os.listdir(config.CACHE_LOCATION)
+    total_cache = len(cachedfonts)
     for f in cachedfonts:
         if f[-7:] != ".pickle":
             continue
@@ -27,27 +34,35 @@ def load_cache():
             print("Loaded {} from cache".format(fonts[fontname].name))
         except RenderError:
             print("Skipping {}, unable to render correctly.".format(fontname))
+        loaded_cache += 1
     global keys
     keys = list(fonts.keys())
 
 
 def load_files():
+    fontpaths = []
+    global total_files, loaded_files
     for fontdir in config.FONT_DIRS:
         for dirpath, dirnames, filenames in os.walk(fontdir):
             for d in filenames:
                 idx = d.rfind(".")
                 if idx != -1 and d[idx:] in config.FONT_FILE_EXTENSIONS:
-                    try:
-                        fontname = Font.extract_name(os.path.join(dirpath, d))
-                        g = Font(os.path.join(dirpath, d))
-                        fonts[fontname] = g
-                        g.save()
-                        print("Loaded {} from file".format(
-                              g.name))
-                    except Exception as e:
-                        print(("Failed to read font at path {}"
-                               "with exception {}").format(
-                                      os.path.join(dirpath, d), e))
+                    fontpaths.append(os.path.join(dirpath, d))
+    total_files = len(fontpaths)
+    for f in fontpaths:
+        try:
+            fontname = Font.extract_name(f)
+            g = Font(f)
+            fonts[fontname] = g
+            g.save()
+            print("Loaded {} from file".format(
+                  g.name))
+        except Exception as e:
+            print(("Failed to read font at path {}"
+                   "with exception {}").format(
+                   f, e))
+        loaded_files += 1
+
     global keys
     keys = list(fonts.keys())
 
