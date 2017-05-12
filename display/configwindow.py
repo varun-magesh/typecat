@@ -96,8 +96,8 @@ class GtkConfigWindow(Gtk.Window):
             self.add_chooser(i)
 
     def add_chooser(self, data):
-        if data is Gtk.Button:
-            data=""
+        if data.__class__ == Gtk.Button:
+            data = ""
         fc = RemovableGtkFileChooser("", data)
         self.font_dirs.append(fc)
         self.box1.pack_start(fc, False, False, 0)
@@ -112,19 +112,18 @@ class GtkFontLoadingWindow(Gtk.Window):
         self.label = Gtk.Label()
         self.label.set_markup("<b>Loading fonts</b>\nThis may take a few minutes, please wait...")
         self.label.set_alignment(0, 0)
-        self.progressbar = Gtk.ProgressBar()
-        self.currentfont = Gtk.Label()
-        self.currentfont.set_alignment(0,0)
-        self.cancelbutton = Gtk.Button.new_from_stock(Gtk.STOCK_CANCEL)
-        self.cancelbutton.connect("clicked", self.cancel)
+        self.progressbar = Gtk.ProgressBar(show_text=True)
+        # self.cancelbutton = Gtk.Button.new_from_stock(Gtk.STOCK_CANCEL)
+        # self.cancelbutton.connect("clicked", self.cancel)
         self.box1.pack_start(self.label, False, False, 0)
         self.box1.pack_end(self.progressbar, False, False, 0)
-        self.box1.pack_end(self.currentfont, False, False, 0)
         self.add(self.box1)
 
-    def update_bar(self, percent, current_loading):
-        self.currentfont.set_text(current_loading);
-        self.progressbar.set_fraction(percent)
+    def update_bar(self, upd):
+
+        self.progressbar.set_text(upd[1]);
+        self.progressbar.set_fraction(upd[0])
+        self.show_all()
 
 
 

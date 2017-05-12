@@ -4,9 +4,9 @@ import config
 import statistics
 from math import sqrt
 from font import RenderError, Font
-from display.configwindow import GtkLoadingWindow, GtkConfigWindow
-from gi.repository import Gtk
-
+from display.configwindow import GtkFontLoadingWindow
+from gi.repository import GLib, GObject, Gtk
+import threading
 keys = list()
 fonts = dict()
 
@@ -42,30 +42,42 @@ def load_cache():
 
 
 def load_files():
+    win = GtkFontLoadingWindow()
+    win.connect("delete-event", Gtk.main_quit)
 
-    fontpaths = []
-    global total_files, loaded_files
-    for fontdir in config.FONT_DIRS:
-        for dirpath, dirnames, filenames in os.walk(fontdir):
-            for d in filenames:
-                idx = d.rfind(".")
-                if idx != -1 and d[idx:] in config.FONT_FILE_EXTENSIONS:
-                    fontpaths.append(os.path.join(dirpath, d))
-    total_files = len(fontpaths)
-    for f in fontpaths:
-        try:
-            fontname = Font.extract_name(f)
-            current_file_name = fontname
-            g = Font(f)
-            fonts[fontname] = g
-            g.save()
-            print("Loaded {} from file".format(
-                  g.name))
-        except Exception as e:
-            print(("Failed to read font at path {}"
-                   "with exception {}").format(
-                   f, e))
-        loaded_files += 1
+    def run():
+        fontpaths = []
+        global total_files, loaded_files, current_file_name
+        for fontdir in config.FONT_DIRS:
+            for dirpath, dirnames, filenames in os.walk(fontdir):
+                for d in filenames:
+                    idx = d.rfind(".")
+                    if idx != -1 and d[idx:] in config.FONT_FILE_EXTENSIONS:
+                        fontpaths.append(os.path.join(dirpath, d))
+        total_files = len(fontpaths)
+
+        for f in fontpaths:
+            try:
+                fontname = Font.extract_name(f)
+                current_file_name = fontname
+                g = Font(f)
+                fonts[fontname] = g
+                g.save()
+                print("Loaded {} from file".format(
+                    g.name))
+            except Exception as e:
+                print(("Failed to read font at path {}"
+                       "with exception {}").format(
+                    f, e))
+            loaded_files += 1
+            GLib.idle_add(win.update_bar, [float(loaded_files/total_files), current_file_name])
+
+    win.show_all()
+    thread = threading.Thread(target=run)
+    thread.daemon = True;
+    GObject.threads_init()
+    thread.start()
+    Gtk.main()
 
     global keys
     keys = list(fonts.keys())
