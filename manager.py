@@ -73,6 +73,8 @@ def load_files():
             GLib.idle_add(win.update_bar, [float(loaded_files / total_files), current_file_name])
             if getattr(t, "stop_flag", True):
                 break
+            if loaded_files == total_files:
+                GLib.idle_add(win.cancel, None)
 
     thread = threading.Thread(target=run)
     setattr(thread, "stop_flag", False)
