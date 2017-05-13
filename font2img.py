@@ -1,4 +1,5 @@
 import PIL
+
 from PIL import Image, ImageDraw, ImageTk
 import config
 
@@ -42,3 +43,28 @@ def single_pil(text, pilfont, size=None, mode="1", fore=0, back=1):
     draw = ImageDraw.Draw(img)
     draw.text((0, 0), text, font=pilfont, fill=(0))
     return (img, draw)
+
+def fingerprint(pilfont):
+    glyphs = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    maxSize = pilfont.getsize('a')
+    biggestLetter = 'a'
+    for g in glyphs:
+        if  pilfont.getsize(g) > maxSize:
+            biggestLetter = g;
+            maxSize = pilfont.getsize(g)
+    img = Image.new("RGBA", maxSize, (255, 255, 255, 255))
+    draw = ImageDraw.Draw(img)
+
+    for g in glyphs:
+        temp_img = Image.new("RGBA", maxSize, (255, 255, 255, 0))
+        glyph = ImageDraw.Draw(temp_img)
+        posx = img.size[0] / 2 - pilfont.getsize(g)[0]/2
+        posy = img.size[1] / 2 - pilfont.getsize(g)[1]/2
+        gpos = (posx, posy)
+        glyph.text(gpos, g, fill=(0, 0, 0, 10), font=pilfont)
+        img = Image.alpha_composite(img, temp_img)
+    img = ImageTk.PhotoImage(img)
+    return img
+
+
+
