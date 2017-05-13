@@ -5,25 +5,19 @@ from display.filteroption import OptionFrame
 from display.fontlist import FontList
 from display.infopanel import InfoPanel
 from display.searchbar import SearchBar
-from display.configwindow import GtkConfigWindow, GtkFontLoadingWindow
-from gi.repository import Gtk, GObject
+from display.configwindow import GtkConfigWindow
+from gi.repository import Gtk
 import config
-import queue
 
 
 
 
-    # # if config.read_config():
-    # print("opening cw")
-    # cw = GtkConfigWindow()
-    # cw.show_all()
-    # cw.connect("delete-event", Gtk.main_quit)
-    # Gtk.main()
-    # manager.load_files()
-
-
-
-
+# if not config.read_config():
+cw = GtkConfigWindow()
+cw.show_all()
+cw.connect("delete-event", Gtk.main_quit)
+Gtk.main()
+manager.load_files()
 
 
 

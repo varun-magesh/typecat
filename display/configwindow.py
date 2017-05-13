@@ -1,4 +1,4 @@
-import gi
+
 import tkinter as tk
 import config
 import tkinter.filedialog as fd
@@ -6,7 +6,7 @@ from os.path import isdir
 import manager
 import threading
 from os import mkdir
-
+import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 
@@ -17,7 +17,7 @@ class GtkFileChooser(Gtk.Box):
         if not title == "":
             self.pathdesc = Gtk.Label()
             self.pathdesc.set_markup("<b>" + title + "</b>")
-            self.pathdesc.set_alignment(0,0)
+            self.pathdesc.set_alignment(0, 0)
             self.pack_start(self.pathdesc, False, False, 0)
 
         self.entrybox = Gtk.Entry()
@@ -60,7 +60,6 @@ class RemovableGtkFileChooser(Gtk.Box):
 
 
 class GtkConfigWindow(Gtk.Window):
-
     def finish(self, widget):
         config.CACHE_LOCATION = self.cache.get_file()
         config.FONT_DIRS = []
@@ -73,6 +72,7 @@ class GtkConfigWindow(Gtk.Window):
 
     def __init__(self):
         Gtk.Window.__init__(self, title="Initial Setup")
+        self.set_position(Gtk.WindowPosition.CENTER)
         self.box1 = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
         self.box1.set_border_width(10)
         self.cache = GtkFileChooser("Cache Location", config.CACHE_LOCATION)
@@ -103,31 +103,42 @@ class GtkConfigWindow(Gtk.Window):
         self.box1.pack_start(fc, False, False, 0)
         self.box1.show_all()
 
+
 class GtkFontLoadingWindow(Gtk.Window):
-    def __init__(self):
+    def __init__(self, thread):
         Gtk.Window.__init__(self)
+        self.daemon_thread = thread
+        self.set_position(Gtk.WindowPosition.CENTER)
         self.set_title("typecat")
         self.set_border_width(10)
         self.box1 = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
         self.label = Gtk.Label()
         self.label.set_markup("<b>Loading fonts</b>\nThis may take a few minutes, please wait...")
         self.label.set_alignment(0, 0)
-        self.progressbar = Gtk.ProgressBar(show_text=True)
-        # self.cancelbutton = Gtk.Button.new_from_stock(Gtk.STOCK_CANCEL)
-        # self.cancelbutton.connect("clicked", self.cancel)
+        self.progressbar = Gtk.ProgressBar()
+        self.current_font = Gtk.Label()
+        self.current_font.set_alignment(0, 0)
+        self.cancelbutton = Gtk.Button.new_from_stock(Gtk.STOCK_CANCEL)
+        self.cancelbutton.set_halign(Gtk.Align.END)
+        self.cancelbutton.connect("clicked", self.cancel)
         self.box1.pack_start(self.label, False, False, 0)
-        self.box1.pack_end(self.progressbar, False, False, 0)
+        self.box1.pack_start(self.progressbar, False, False, 0)
+        self.box1.pack_start(self.current_font, False, False, 0)
+        self.box1.pack_start(self.cancelbutton, False, False, 0)
         self.add(self.box1)
 
     def update_bar(self, upd):
-
-        self.progressbar.set_text(upd[1]);
+        self.current_font.set_markup("<i>Loaded " + upd[1] + " from file</i>");
         self.progressbar.set_fraction(upd[0])
         self.show_all()
 
+    def cancel(self, widget):
+        setattr(self.daemon_thread, "stop_flag", True)
+        self.destroy()
+        Gtk.main_quit()
 
-
-
+    def exit_handler(self, widget, event):
+        self.cancel(widget)
 
 
 #

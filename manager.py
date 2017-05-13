@@ -7,6 +7,7 @@ from font import RenderError, Font
 from display.configwindow import GtkFontLoadingWindow
 from gi.repository import GLib, GObject, Gtk
 import threading
+
 keys = list()
 fonts = dict()
 
@@ -18,6 +19,7 @@ loaded_files = 0
 current_file_name = ""
 total_cache = 0
 loaded_cache = 0
+
 
 def load_cache():
     # TODO if you have a lot of fonts this might kill memory, we should load and
@@ -31,7 +33,7 @@ def load_cache():
         fontname = f[:-7]
         try:
             loadfont = pickle.load(open("{}/{}".format(
-                                          config.CACHE_LOCATION, f), "rb"))
+                config.CACHE_LOCATION, f), "rb"))
             fonts[fontname] = loadfont
             print("Loaded {} from cache".format(fonts[fontname].name))
         except RenderError:
@@ -42,10 +44,8 @@ def load_cache():
 
 
 def load_files():
-    win = GtkFontLoadingWindow()
-    win.connect("delete-event", Gtk.main_quit)
-
     def run():
+        t = threading.currentThread()
         fontpaths = []
         global total_files, loaded_files, current_file_name
         for fontdir in config.FONT_DIRS:
@@ -70,14 +70,20 @@ def load_files():
                        "with exception {}").format(
                     f, e))
             loaded_files += 1
-            GLib.idle_add(win.update_bar, [float(loaded_files/total_files), current_file_name])
+            GLib.idle_add(win.update_bar, [float(loaded_files / total_files), current_file_name])
+            if getattr(t, "stop_flag", True):
+                break
 
-    win.show_all()
     thread = threading.Thread(target=run)
+    setattr(thread, "stop_flag", False)
     thread.daemon = True;
+    win = GtkFontLoadingWindow(thread)
+    win.connect("delete-event", win.exit_handler)
+    win.show_all()
     GObject.threads_init()
     thread.start()
     Gtk.main()
+    thread.join()
 
     global keys
     keys = list(fonts.keys())
@@ -86,6 +92,10 @@ def load_files():
 def load_fonts():
     load_cache()
     load_files()
+
+# def update_cache():
+#     for fontdir in config.FONT_DIRS:
+#         for dirpath, dirnames, filenames
 
 
 def scale(feature, value):
@@ -115,14 +125,16 @@ def find_features(features, values):
         for v, f in zip(values, features):
             if type(v) in [float, int]:
                 # TODO feature scaling
-                total += abs(scale(f, (v - fonts[vals].__dict__[f])**2))
+                total += abs(scale(f, (v - fonts[vals].__dict__[f]) ** 2))
             else:
                 total += 0 if v == fonts[vals].__dict__[f] else 1
         return sqrt(total)
+
     keys.sort(key=sortkey)
 
 
 def search_fonts(searchstr):
     def sortkey(vals):
         return 0 if searchstr.lower() in vals.lower() else 1
+
     keys.sort(key=sortkey)
