@@ -59,7 +59,7 @@ def fingerprint(pilfont):
         temp_img = Image.new("RGBA", maxSize, (255, 255, 255, 0))
         glyph = ImageDraw.Draw(temp_img)
         posx = img.size[0] / 2 - pilfont.getsize(g)[0]/2
-        posy = img.size[1] / 2 - pilfont.getsize(g)[1]/2
+        posy = 0#img.size[1] / 2 - pilfont.getsize(g)[1]/2
         gpos = (posx, posy)
         glyph.text(gpos, g, fill=(0, 0, 0, 10), font=pilfont)
         img = Image.alpha_composite(img, temp_img)
