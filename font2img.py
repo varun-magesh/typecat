@@ -1,5 +1,3 @@
-import PIL
-
 from PIL import Image, ImageDraw, ImageTk
 import config
 
@@ -47,10 +45,8 @@ def single_pil(text, pilfont, size=None, mode="1", fore=0, back=1):
 def fingerprint(pilfont):
     glyphs = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
     maxSize = pilfont.getsize('a')
-    biggestLetter = 'a'
     for g in glyphs:
         if  pilfont.getsize(g) > maxSize:
-            biggestLetter = g;
             maxSize = pilfont.getsize(g)
     img = Image.new("RGBA", maxSize, (255, 255, 255, 255))
 

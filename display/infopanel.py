@@ -39,11 +39,11 @@ class InfoPanel(tk.Frame):
             # TODO automatically set font size to a reasonable level when
             # started
             # FIXME if you change the size and then the text it sometimes
-            # won't change until you change the text again
-            # photo = f2i.multiline_tk(text, self.font.pilfont,
-            #                          (int(w), int(h/2)),
-            #                          padx=wpad, pady=hpad)
-            photo = f2i.fingerprint(self.font.pilfont)
+            #won't change until you change the text again
+            photo = f2i.multiline_tk(text, self.font.pilfont,
+                                     (int(w), int(h/2)),
+                                     padx=wpad, pady=hpad)
+            # photo = f2i.fingerprint(self.font.pilfont)
 
             label.image = photo
             label.configure(image=photo)
