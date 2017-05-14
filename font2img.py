@@ -53,7 +53,6 @@ def fingerprint(pilfont):
             biggestLetter = g;
             maxSize = pilfont.getsize(g)
     img = Image.new("RGBA", maxSize, (255, 255, 255, 255))
-    draw = ImageDraw.Draw(img)
 
     for g in glyphs:
         temp_img = Image.new("RGBA", maxSize, (255, 255, 255, 0))

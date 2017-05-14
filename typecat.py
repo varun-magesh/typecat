@@ -12,12 +12,12 @@ import config
 
 
 
-# if not config.read_config():
-cw = GtkConfigWindow()
-cw.show_all()
-cw.connect("delete-event", Gtk.main_quit)
-Gtk.main()
-manager.load_files()
+if not config.read_config():
+    cw = GtkConfigWindow()
+    cw.show_all()
+    cw.connect("delete-event", Gtk.main_quit)
+    Gtk.main()
+    manager.load_files()
 
 
 
