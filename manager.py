@@ -10,7 +10,7 @@ import threading
 
 keys = list()
 fonts = dict()
-exceptions = set()
+
 
 COMPARABLE_FEATURES = ["slant", "thickness", "width", "height",
                        "ratio", "thickness_variation"]
@@ -25,16 +25,20 @@ loaded_cache = 0
 def load_cache():
     # TODO if you have a lot of fonts this might kill memory, we should load and
     # del fonts as necessary.
-    global exceptions
+    exceptions = set()
     try:
         exceptions = pickle.load(open("{}/exceptions.tcat".format(config.CACHE_LOCATION), "rb"))
-    except pickle.PickleError:
+        print("Loaded exceptions list!")
+        for f in exceptions:
+            print(f)
+    except FileNotFoundError:
         print("Exception file not found, initializing blank one")
+        exceptions = set()
     global total_cache, loaded_cache
     cachedfonts = os.listdir(config.CACHE_LOCATION)
     total_cache = len(cachedfonts)
     for f in cachedfonts:
-        if f[-7:] != ".pickle" or f[-7:] in exceptions:
+        if f[-7:] != ".pickle" or f[:-7] in exceptions:
             print("File {} is in exception list".format(f))
             continue
         fontname = f[:-7]
@@ -49,8 +53,10 @@ def load_cache():
         loaded_cache += 1
     global keys
     keys = list(fonts.keys())
+    for f in exceptions:
+        print(str(f))
     pickle.dump(exceptions, open("{}/exceptions.tcat".format(config.CACHE_LOCATION), "wb"))
-
+    print("Dumping to path {}/exceptions.tcat".format(config.CACHE_LOCATION))
 
 
 
@@ -62,7 +68,7 @@ def load_files():
         global total_files, loaded_files, current_file_name, exceptions
         try:
             exceptions = pickle.load(open("{}/exceptions.tcat".format(config.CACHE_LOCATION), "rb"))
-        except pickle.PickleError:
+        except FileNotFoundError:
             print("Exception file not found, initializing blank one")
         for fontdir in config.FONT_DIRS:
             for dirpath, dirnames, filenames in os.walk(fontdir):
