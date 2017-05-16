@@ -1,4 +1,4 @@
-from PIL import Image, ImageDraw, ImageTk, ImageFont
+from PIL import Image, ImageDraw, ImageFont
 import sys
 import os
 
@@ -30,20 +30,14 @@ def multiline(text, pilfont, size, mode="RGB",
                             fill=foreground, spacing=spacing)
         return image
 
-
-path = sys.argv[1]
-if path[-1] != "/":
-        path += "/"
-savepath = sys.argv[2]
-if savepath[-1] != "/":
-        savepath += "/"
-for f in os.listdir(path):
-        if ".ttf" in f or ".otf" in f:
-                print(path+f)
-                font = ImageFont.truetype(path+f, size=75)
-                if font.font.style not in ["Regular", "Normal"]:
-                    continue
-                img = multiline("abcdefghijklmnopABCDEFGHIJKLMNOP\nHandgloves\nRen", font, (500, 500))
-                img.save(savepath+f[:-4]+".jpg", "JPEG")
-
+with open("fontlist") as fl:
+    for f in fl.readlines():
+        try:
+            f = f.strip()
+            f = f[:f.find(":")].strip()
+            font = ImageFont.truetype(f, size=75)
+            img = multiline("abcdefghijklmnopABCDEFGHIJKLMNOP\nHandgloves\nRen", font, (500, 500))
+            img.save("imgs/"+f[f.rfind("/"):-4]+".jpg", "JPEG")
+        except Exception:
+            pass
 
