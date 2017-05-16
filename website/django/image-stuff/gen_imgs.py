@@ -39,6 +39,5 @@ with open("fontlist") as fl:
             img = multiline("abcdefghijklmnopABCDEFGHIJKLMNOP\nHandgloves\nRen", font, (500, 500))
             img.save("imgs/"+f[f.rfind("/"):-4]+".jpg", "JPEG")
         except Exception:
-            print("Failed to read font at " + f)
-
+            pass
 
