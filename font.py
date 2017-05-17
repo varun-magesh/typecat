@@ -119,6 +119,9 @@ class Font(object):
         stddevsq = total / max(1, num_vals)
         self.thickness_variation = sqrt(stddevsq)
 
+    def getsize(self, *args):
+        return self.pilfont.getsize(*args)
+
     def extract_category(self):
         # Check if serif by using the uppercase T
         # Should be unique to serif characters, might also pick up
@@ -288,6 +291,9 @@ class Font(object):
     def __setstate__(self, d):
         self.__dict__ = d
         self.open_path()
+
+    def __str__(self):
+        return "Font {} at path {}".format(self.name, self.path)
 
     @staticmethod
     def extract_name(d):
