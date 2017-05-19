@@ -5,7 +5,7 @@ import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, Pango
 
-class FontInfo(Gtk.Box):
+class FontBox(Gtk.Box):
 
     def __init__(self, font, text="Handgloves", size=(300, 200), font_size=75):
         Gtk.Box.__init__(self, orientation=Gtk.Orientation.VERTICAL)
