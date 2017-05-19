@@ -2,7 +2,8 @@ from PIL import Image, ImageDraw, ImageTk
 import config
 import gi
 gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk, Gdk, GLib
+import array
+from gi.repository import Gtk, Gdk, GLib, GdkPixbuf
 
 def multiline_tk(text, pilfont, size, mode="RGB",
                  padx=0, pady=0, spacing=0,
@@ -63,15 +64,21 @@ def multiline_gtk(text, pilfont, size, mode="RGB", padx=0, pady=0, spacing=0,
 
         return pil2gtk(image)
 
-
 def pil2gtk(im):
     """Convert Pillow image to GdkPixbuf"""
     data = im.tobytes()
     w, h = im.size
     data = GLib.Bytes.new(data)
-    pix = Gdk.GdkPixbuf.Pixbuf.new_from_bytes(data, Gdk.GdkPixbuf.Colorspace.RGB,
+    pix = GdkPixbuf.Pixbuf.new_from_bytes(data, 0,
             False, 8, w, h, w * 3)
     return pix
+"""
+def pil2gtk(im):
+    arr = array.array('B', im.tobytes())
+    width, height = im.size
+    return GdkPixbuf.Pixbuf.new_from_data(arr, GdkPixbuf.Colorspace.RGB,
+                                          True, 8, width, height, width * 4)
+"""
 
 
 def single_pil(text, pilfont, size=None, mode="1", fore=0, back=1):
@@ -101,6 +108,4 @@ def fingerprint(pilfont):
         img = Image.alpha_composite(img, temp_img)
     img = ImageTk.PhotoImage(img)
     return img
-
-
 
