@@ -1,5 +1,5 @@
 import manager
-from fontbox import FontBox
+from display.fontbox import FontBox
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
