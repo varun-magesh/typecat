@@ -25,10 +25,3 @@ class FontInfo(Gtk.Box):
         self.image.set_from_pixbuf(f2i.multiline_gtk(self.text, self.font.pilfont, self.size))
         self.pack_start(self.image, False, False, 0)
 
-
-f = Font("/usr/share/fonts/truetype/liberation/LiberationMono-Regular.ttf")
-win = Gtk.Window()
-win.connect("delete-event", Gtk.main_quit)
-win.add(FontInfo(f))
-win.show_all()
-Gtk.main()
