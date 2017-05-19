@@ -1,16 +1,16 @@
-from random import randint
 import tkinter as tk
-import manager
-from display.filteroption import OptionFrame
-from display.fontlist import FontList
-from display.infopanel import InfoPanel
-from display.searchbar import SearchBar
-from display.configwindow import GtkConfigWindow
+from random import randint
+
 from gi.repository import Gtk
+
 import config
+import manager
 
-
-
+from display.tkinter_old.fontlist import FontList
+from display.configwindow import GtkConfigWindow
+from display.tkinter_old.infopanel import InfoPanel
+from display.tkinter_old.filteroption import OptionFrame
+from display.tkinter_old.searchbar import SearchBar
 
 if not config.read_config():
     cw = GtkConfigWindow()

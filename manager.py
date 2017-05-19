@@ -1,12 +1,14 @@
-import pickle
 import os
-import config
+import pickle
 import statistics
-from math import sqrt
-from font import RenderError, Font
-from display.configwindow import GtkFontLoadingWindow
-from gi.repository import GLib, GObject, Gtk
 import threading
+from math import sqrt
+
+from gi.repository import GLib, GObject, Gtk
+
+import config
+from display.configwindow import GtkFontLoadingWindow
+from font import RenderError, Font
 
 keys = list()
 fonts = dict()
@@ -29,8 +31,6 @@ def load_cache():
     try:
         exceptions = pickle.load(open("{}/exceptions.tcat".format(config.CACHE_LOCATION), "rb"))
         print("Loaded exceptions list!")
-        for f in exceptions:
-            print(f)
     except FileNotFoundError:
         print("Exception file not found, initializing blank one")
         exceptions = set()
@@ -53,8 +53,6 @@ def load_cache():
         loaded_cache += 1
     global keys
     keys = list(fonts.keys())
-    for f in exceptions:
-        print(str(f))
     pickle.dump(exceptions, open("{}/exceptions.tcat".format(config.CACHE_LOCATION), "wb"))
     print("Dumping to path {}/exceptions.tcat".format(config.CACHE_LOCATION))
 
