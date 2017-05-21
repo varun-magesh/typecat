@@ -39,7 +39,8 @@ class FontSpider(scrapy.Spider):
         for download_link in response.css('.dl::attr(href)').extract():
 
             yield {
-                'url': download_link,
+                'file_url': download_link,
+                'name': download_link[download_link.find("=")+1:],
                 'category': categories.get(category)
             }
 
