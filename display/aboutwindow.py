@@ -16,6 +16,7 @@ class GtkAboutWindow(Gtk.AboutDialog):
 
         self.set_logo_icon_name("accessories-character-map")
         self.set_license_type(Gtk.License.MIT_X11)
+        self.set_license("\n".join(open("../LICENSE.txt", 'r').readlines()))
         self.set_version("0.5.0")
 
 win = GtkAboutWindow()
