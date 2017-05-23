@@ -3,18 +3,17 @@ import scrapy
 class FontSpider(scrapy.Spider):
     name = "fonts"
 
-    categories = {
-        501: "sans_serif",
-        502: "serif",
-        503: "mono",
-    }
-
     def start_requests(self):
         # recurse_depth = 10
         categories = {
-            501: "sans_serif",
-            502: "serif",
-            503: "mono",
+            # 501: "sans_serif",
+            # 502: "serif",
+            # 503: "mono",
+            601: "calligraphy",
+            401: "blackletter",
+            603: "handwritten",
+            604: "brush"
+
         }
 
         urls = [
