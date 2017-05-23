@@ -11,7 +11,6 @@ class FilterOption(Gtk.Box):
         self.adj = Gtk.Adjustment(0.0, -5.0, 5.0, 0.1, 0.5, 0)
         self.slider = Gtk.Scale(adjustment=self.adj, orientation=Gtk.Orientation.HORIZONTAL)
         self.slider.add_mark(0.0, Gtk.PositionType.BOTTOM)
-        self.slider.
         self.checkbox_state = self.checkbox.get_state()
         self.slider_value = self.slider.get_value()
 
