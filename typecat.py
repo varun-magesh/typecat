@@ -7,6 +7,7 @@ import manager
 
 from display.configwindow import GtkConfigWindow
 from display.fontboxbox import FontBoxBox
+from display.fontbox import FontBox
 
 #Check if we need to do first time setup
 if not config.read_config():
@@ -20,14 +21,18 @@ if not config.read_config():
 root = Gtk.Window()
 root.connect("delete-event", Gtk.main_quit)
 #Initialize main font view
-fbb = FontBoxBox()
-root.add(fbb)
-grid = Gtk.Grid()
 #root.add(fbb)
 
 #load font files from cache
 manager.load_cache()
 manager.keys.sort(key=str.lower)
+
+fbb = FontBoxBox()
+fbb.refresh()
+scrolled = Gtk.ScrolledWindow()
+scrolled.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
+scrolled.add(fbb)
+root.add(scrolled)
 
 
 

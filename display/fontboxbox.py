@@ -4,25 +4,18 @@ import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 
-class FontBoxBox(Gtk.Box):
+class FontBoxBox(Gtk.FlowBox):
     def __init__(self):
-        Gtk.Box.__init__(self)
-        scroll = Gtk.ScrolledWindow()
-        scroll.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
-
-        self.flowbox = Gtk.FlowBox()
-        self.flowbox.set_valign(Gtk.Align.START)
-        self.flowbox.set_max_children_per_line(10)
-        self.flowbox.set_selection_mode(Gtk.SelectionMode.NONE)
-
-        scroll.add(self.flowbox)
-        self.pack_start(scroll, True, True, 0)
-        self.show_all()
+        Gtk.FlowBox.__init__(self)
+        self.set_valign(Gtk.Align.START)
+        self.set_max_children_per_line(30)
+        self.set_selection_mode(Gtk.SelectionMode.NONE)
 
     def refresh(self):
-        for i in self.flowbox.get_children():
-            i.destroy(self)
+        for i in self.get_children():
+            i.destroy()
         for num, name in enumerate(manager.keys):
-            b = FontBox(manager[name])
-            self.flowbox.add(b)
-        self.flowbox.show_all()
+            b = FontBox(manager.fonts[name])
+            self.add(b)
+        self.add(FontBox(manager.fonts[manager.keys[20]]))
+        self.show_all()
