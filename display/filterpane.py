@@ -52,7 +52,9 @@ class FilterPane(Gtk.Box):
         Gtk.Box.__init__(self, orientation=Gtk.Orientation.VERTICAL, spacing=6)
         self.filterwidgets = []
         self.refresh = refresh_callback
+        self.searchbar = Gtk.Entry(valign=Gtk.Align.START)
+        self.pack_start(self.searchbar, False, False, 5)
         for num, f in enumerate(manager.COMPARABLE_FEATURES):
             fw = FilterOption(f, self.filter)
             self.filterwidgets.append(fw)
-            self.pack_start(fw, False, False, 0)
+            self.pack_start(fw, False, False, 5)
