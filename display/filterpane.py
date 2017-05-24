@@ -29,7 +29,7 @@ class FilterOption(Gtk.Box):
         self.pack_end(self.slider, True, True, 0)
 
     def on_click_checkbox(self, button):
-        self.checkbox_state = self.checkbox.get_state()
+        self.checkbox_state = self.checkbox.get_active()
         self.callback()
 
     def on_move_slider(self, slider):
@@ -43,8 +43,9 @@ class FilterPane(Gtk.Box):
         active_feats = []
         active_values = []
         for fo in self.filterwidgets:
-            active_feats.append(fo.feature)
-            active_values.append(fo.slider_value * config.SCALE[fo.feature][1] + config.SCALE[fo.feature][0])
+            if fo.checkbox.get_state():
+                    active_feats.append(fo.feature)
+                    active_values.append(fo.slider_value * config.SCALE[fo.feature][1] + config.SCALE[fo.feature][0])
         manager.find_features(active_feats, active_values)
         self.refresh()
 

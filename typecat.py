@@ -29,18 +29,14 @@ root.add(grid)
 manager.load_cache()
 manager.keys.sort(key=str.lower)
 
-fbb = FontBoxBox()
-fp = FilterPane(None)
-grid.add(fp)
-grid.attach(fbb, 1, 0, 1, 1)
-
-
-
 def entry_callback(s):
     manager.search_fonts(s)
-    #fontlist.refresh()
 
-#fontlist.refresh()
+fbb = FontBoxBox()
+fp = FilterPane(fbb.refresh)
+grid.add(fp)
+grid.attach(fbb, 1, 0, 1, 1)
+grid.set_border_width(5)
 
 root.show_all()
 Gtk.main()
