@@ -1,5 +1,5 @@
-from random import randint
-
+import gi
+gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 
 import config
@@ -7,7 +7,7 @@ import manager
 
 from display.configwindow import GtkConfigWindow
 from display.fontboxbox import FontBoxBox
-from display.fontbox import FontBox
+from display.filterpane import FilterPane
 
 #Check if we need to do first time setup
 if not config.read_config():
@@ -20,6 +20,8 @@ if not config.read_config():
 #Initialize window and grid
 root = Gtk.Window()
 root.connect("delete-event", Gtk.main_quit)
+grid = Gtk.Grid()
+root.add(grid)
 #Initialize main font view
 #root.add(fbb)
 
@@ -28,11 +30,9 @@ manager.load_cache()
 manager.keys.sort(key=str.lower)
 
 fbb = FontBoxBox()
-fbb.refresh()
-scrolled = Gtk.ScrolledWindow()
-scrolled.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
-scrolled.add(fbb)
-root.add(scrolled)
+fp = FilterPane(None)
+grid.add(fp)
+grid.attach(fbb, 1, 0, 1, 1)
 
 
 

@@ -9,7 +9,7 @@ class FontBox(Gtk.Box):
 
     def __init__(self, font, text="Handgloves", size=(200, 150), font_size=75):
         Gtk.Box.__init__(self, orientation=Gtk.Orientation.VERTICAL)
-        self.set_border_width(10)
+        self.set_border_width(5)
         self.font = font
         self.font_size = int(size[0]/9)
         self.font.set_size(self.font_size)
