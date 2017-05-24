@@ -199,7 +199,7 @@
 {"url": "http://dl.dafont.com/dl/?f=sullivan", "category": "sans_serif"},
 {"url": "http://dl.dafont.com/dl/?f=fashion_fetish", "category": "sans_serif"},
 {"url": "http://dl.dafont.com/dl/?f=fontastique", "category": "sans_serif"},
-{"url": "http://dl.dafont.com/dl/?f=voor", "category": "serif"},
+{"url": "http://dl.dafont.Add filterpane, make scales a dict literalcom/dl/?f=voor", "category": "serif"},
 {"url": "http://dl.dafont.com/dl/?f=john_hancock_cp", "category": "serif"},
 {"url": "http://dl.dafont.com/dl/?f=pottery_barn", "category": "serif"},
 {"url": "http://dl.dafont.com/dl/?f=chelsea", "category": "serif"},
