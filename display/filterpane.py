@@ -3,6 +3,7 @@ import config
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
+from font import Font
 
 
 class FilterOption(Gtk.Box):
@@ -39,23 +40,31 @@ class FilterOption(Gtk.Box):
 
 
 class FilterPane(Gtk.Box):
+        
+    def sort_func(child1, child2, user_data):
+        if child1.font > child2.font:
+            return -1
+        if child1.font < child2.font:
+            return 1
+        if child1.font == child2.font:
+            return 0
+
     def filter(self):
         active_feats = []
         active_values = []
-        for fo in self.filterwidgets:
+        for idx, fo in enumerate(self.filterwidgets):
             if fo.checkbox.get_state():
-                    active_feats.append(fo.feature)
-                    active_values.append(fo.slider_value * config.SCALE[fo.feature][1] + config.SCALE[fo.feature][0])
-        manager.find_features(active_feats, active_values)
-        self.refresh()
+                compare[idx][1] = fo.slider_value
 
-    def __init__(self, refresh_callback):
+        self.set_filter(self.sort_func)
+
+    def __init__(self, set_filter):
         Gtk.Box.__init__(self, orientation=Gtk.Orientation.VERTICAL, spacing=6)
         self.filterwidgets = []
-        self.refresh = refresh_callback
+        self.set_filter = set_filter
         self.searchbar = Gtk.Entry(valign=Gtk.Align.START)
         self.pack_start(self.searchbar, False, False, 5)
-        for num, f in enumerate(manager.COMPARABLE_FEATURES):
-            fw = FilterOption(f, self.filter)
+        for num, f in enumerate(Font.compare):
+            fw = FilterOption(f[0], self.filter)
             self.filterwidgets.append(fw)
             self.pack_start(fw, False, False, 5)

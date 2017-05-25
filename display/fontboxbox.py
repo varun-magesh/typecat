@@ -28,3 +28,6 @@ class FontBoxBox(Gtk.ScrolledWindow):
             b = FontBox(manager.fonts[name])
             self.flowbox.add(b)
         self.flowbox.show_all()
+
+    def set_sort_func(self, func):
+        self.flowbox.set_sort_func(func)

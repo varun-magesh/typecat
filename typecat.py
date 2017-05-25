@@ -33,7 +33,7 @@ def entry_callback(s):
     manager.search_fonts(s)
 
 fbb = FontBoxBox()
-fp = FilterPane(fbb.refresh)
+fp = FilterPane(fbb.set_sort_func)
 grid.add(fp)
 grid.attach(fbb, 1, 0, 1, 1)
 grid.set_border_width(5)
