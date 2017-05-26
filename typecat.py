@@ -17,6 +17,7 @@ if not config.read_config():
         Gtk.main()
         manager.load_files()
 
+
 #Initialize window and grid
 root = Gtk.Window()
 root.connect("delete-event", Gtk.main_quit)
@@ -28,8 +29,10 @@ root.add(grid)
 #load font files from cache
 manager.load_cache()
 manager.keys.sort(key=str.lower)
+manager.scale_features()
 
 fbb = FontBoxBox()
+
 fp = FilterPane(fbb.set_sort_func)
 grid.add(fp)
 grid.attach(fbb, 1, 0, 1, 1)

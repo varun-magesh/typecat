@@ -12,7 +12,7 @@ class FilterOption(Gtk.Box):
         self.adj = Gtk.Adjustment(0.0, -5.0, 5.0, 0.1, 0.5, 0)
         self.slider = Gtk.Scale(adjustment=self.adj, orientation=Gtk.Orientation.HORIZONTAL)
         self.slider.add_mark(0.0, Gtk.PositionType.BOTTOM)
-        self.checkbox_state = self.checkbox.get_state()
+        self.checkbox_state = self.checkbox.get_active()
         self.slider_value = self.slider.get_value()
         self.slider.set_draw_value(False)
 
@@ -41,6 +41,7 @@ class FilterPane(Gtk.Box):
 
     @staticmethod
     def sort_func(child1, child2, *user_data):
+        return child2.font.dist() - child1.font.dist()
         if child1.font > child2.font:
             return -1
         if child1.font < child2.font:
@@ -50,8 +51,10 @@ class FilterPane(Gtk.Box):
 
     def filter(self):
         for idx, fo in enumerate(self.filterwidgets):
-            if fo.checkbox.get_state():
+            if fo.checkbox_state:
                 Font.compare[idx][1] = fo.slider_value
+            else:
+                Font.compare[idx][1] = -1
 
         self.set_filter(FilterPane.sort_func)
 

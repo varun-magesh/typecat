@@ -69,7 +69,6 @@ class Font(object):
     search_str = ""
 
     def dist(self):
-
         total = 0
         if Font.search_str != "" and Font.search_str in self.name:
             total += 100
@@ -77,9 +76,10 @@ class Font(object):
             if v == -1:
                 continue
             if type(v) in [float, int]:
-                total += (v - manager.scale(f, (self.__dict__[f]))) ** 2
+                total += (v - manager.scale(f, self.__dict__[f])) ** 2
             else:
                 total += 0 if v == self.__dict__[f] else 1
+        print(total)
         return sqrt(total)
 
     def __lt__(self, other):

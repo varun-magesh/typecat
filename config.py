@@ -54,16 +54,6 @@ def read_config():
         return True
     else:
         return False
-# all scales are at size 50
-# Mean, Stddev
-SCALE = {"ascent": (43.492, 6.1676),
-         "descent": (14.3301, 4.207),
-         "height": (45.2006, 6.62049),
-         "width": (30.3181818, 4.2233),
-         "ratio": (1.51656, 0.28923),
-         "thickness": (3.620056, 1.0616),
-         "thickness_variation": (1.7069, 0.7979866),
-         "slant": (.0596753, 0.0953168)}
 
 
 def setup_cache():
