@@ -70,7 +70,7 @@ class Font(object):
 
     def dist(self):
         total = 0
-        if Font.search_str != "" and Font.search_str in self.name:
+        if Font.search_str != "" and Font.search_str.lower() in self.name.lower():
             total += 100
         for f, v in Font.compare:
             if v == -1:

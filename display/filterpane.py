@@ -49,7 +49,8 @@ class FilterPane(Gtk.Box):
         if child1.font == child2.font:
             return 0
 
-    def filter(self):
+    def filter_(self, *args):
+        Font.search_str = self.searchbar.get_text()
         for idx, fo in enumerate(self.filterwidgets):
             if fo.checkbox_state:
                 Font.compare[idx][1] = fo.slider_value
@@ -63,8 +64,9 @@ class FilterPane(Gtk.Box):
         self.filterwidgets = []
         self.set_filter = set_filter
         self.searchbar = Gtk.Entry(valign=Gtk.Align.START)
+        self.searchbar.connect("activate", self.filter_)
         self.pack_start(self.searchbar, False, False, 5)
         for num, f in enumerate(Font.compare):
-            fw = FilterOption(f[0], self.filter)
+            fw = FilterOption(f[0], self.filter_)
             self.filterwidgets.append(fw)
             self.pack_start(fw, False, False, 5)
