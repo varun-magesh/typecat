@@ -8,6 +8,7 @@ import manager
 from display.configwindow import GtkConfigWindow
 from display.fontboxbox import FontBoxBox
 from display.filterpane import FilterPane
+from display.previewpanel import PreviewPanel
 
 #Check if we need to do first time setup
 if not config.read_config():
@@ -32,11 +33,14 @@ manager.keys.sort(key=str.lower)
 manager.scale_features()
 
 fbb = FontBoxBox()
-
+pp = PreviewPanel()
 fp = FilterPane(fbb.set_sort_func)
-grid.add(fp)
-grid.attach(fbb, 1, 0, 1, 1)
+grid.set_row_homogeneous(False)
+grid.attach(fp, 0, 0, 1, 2)
+grid.attach(pp, 1, 0, 1, 1)
+grid.attach(fbb, 1, 1, 1, 1)
 grid.set_border_width(5)
+grid.set_row_spacing(5)
 
 root.show_all()
 Gtk.main()
