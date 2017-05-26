@@ -1,9 +1,7 @@
 import font2img as f2i
-import manager
-from font import Font
 import gi
 gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk, Pango
+from gi.repository import Gtk
 
 class FontBox(Gtk.FlowBoxChild):
 
@@ -20,11 +18,12 @@ class FontBox(Gtk.FlowBoxChild):
 
         self.title = Gtk.Label(halign=Gtk.Align.START)
         self.title.set_markup("<b>{}</b>".format(self.font.name))
+        self.title.set_ellipsize(True)
         self.box.pack_start(self.title, False, False, 0)
 
         self.image = Gtk.Image(halign=Gtk.Align.START)
         self.image.set_from_pixbuf(f2i.multiline_gtk(self.text, self.font.pilfont, self.size))
         self.box.pack_start(self.image, False, False, 0)
-        
+
         self.add(self.box)
 

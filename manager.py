@@ -20,6 +20,13 @@ current_file_name = ""
 total_cache = 0
 loaded_cache = 0
 
+#mean stddev min max
+MEAN = 0
+STDDEV = 1
+MIN = 2
+MAX = 3
+scale_values = {}
+
 
 def load_cache():
     # TODO if you have a lot of fonts this might kill memory, we should load and
@@ -122,20 +129,23 @@ def load_fonts():
 
 def scale(feature, value):
     """ Scales a value to its standard dev. across the font set. """
-    return (config.SCALE[feature][0] - value) / config.SCALE[feature][1]
+    xprime = ((value - scale_values[feature][MIN]) / (scale_values[feature][MAX] - scale_values[feature][MIN])) * 10 - 5
+    #x2prime = (xprime - scale_values[feature][MEAN]) / scale_values[feature][STDDEV]
+    return xprime
 
 
 def scale_features():
     """
-    Calculates the stddev and mean of each feature.
-    Not necessary to be run more than once in a while.
-    I might end up pasting the scales from my own fonts into the code, should
-    be just fine.
+    Calculates the stddev, mean, min, and max of each feature.
     """
-    for f in Font.compare[0]:
+    for f in Font.compare:
         population = []
         for k in keys:
-            population.append(fonts[k].__dict__[f])
+            population.append(fonts[k].__dict__[f[0]])
+        maximum = max(population)
+        minimum = min(population)
+        for p in population:
+            p = (p - minimum) / (maximum - minimum)
         mean = sum(population) / max(len(population), 1)
         stddev = statistics.pstdev(population)
-        print("Feature {} Mean {} Standard Dev. {}".format(f, mean, stddev))
+        scale_values[f[0]] = (mean, stddev, max(population), min(population))
