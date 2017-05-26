@@ -79,7 +79,6 @@ class Font(object):
                 total += (v - manager.scale(f, self.__dict__[f])) ** 2
             else:
                 total += 0 if v == self.__dict__[f] else 1
-        print(total)
         return sqrt(total)
 
     def __lt__(self, other):
