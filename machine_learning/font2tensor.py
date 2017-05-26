@@ -6,19 +6,19 @@ import random
 from PIL import Image, ImageDraw, ImageOps
 import font
 
-labels = {
+font_labels = {
     "sans": 1,
     "serif": 2,
     "mono": 3,
     "script": 4,
 }
 
+
 def font2tensor(font):
     font.set_size(36)
     img = fingerprint(font.pilfont)
     img = PIL.ImageOps.invert(img)
-    return tf.convert_to_tensor(list(img.getdata()), dtype=tf.float32)
-
+    return tf.expand_dims(tf.convert_to_tensor(list(img.getdata()), dtype=tf.float32), 0)
 
 
 def fingerprint(pilfont):
@@ -28,12 +28,13 @@ def fingerprint(pilfont):
     for g in glyphs:
         temp_img = Image.new("RGBA", (48, 48), (255, 255, 255, 0))
         glyph = ImageDraw.Draw(temp_img)
-        posx = img.size[0] / 2 - pilfont.getsize(g)[0]/2
+        posx = img.size[0] / 2 - pilfont.getsize(g)[0] / 2
         posy = 0
         glyph.text((posx, posy), g, fill=(0, 0, 0, 10), font=pilfont)
         img = Image.alpha_composite(img, temp_img)
 
     return img.convert('L')
+
 
 def generate_batch(batch_size, labels):
     fontdir = '/home/timothy/dl_fonts'
@@ -44,19 +45,25 @@ def generate_batch(batch_size, labels):
             if idx != -1 and d[idx:] in config.FONT_FILE_EXTENSIONS:
                 font_training_paths[(os.path.join(dirpath, d))] = labels[dirpath.split("/")[-1]]
     while True:
-        choice_list = []
-        images = tf.placeholder(dtype=tf.float32, shape=[None, 2304])
-        labels = tf.placeholder(dtype=tf.float32, shape=[None, len(labels)])
+        print(len(labels))
+        images = tf.zeros(shape=[0, 2304], dtype=tf.float32)
+        image_labels = tf.zeros(dtype=tf.float32, shape=[0, len(labels)])
         for i in range(0, batch_size):
             choice = random.choice(list(font_training_paths.keys()))
+            print(choice)
+            choice_font = font.Font(choice, 36)
+            if choice_font is None:
+                continue
             choice_label = font_training_paths[choice]
-            tf.concat(values=[images, font2tensor(font.Font(choice).set_size(36))], axis=0)
-            tf.concat(values=[labels, tf.one_hot(depth=len(labels), indices=choice_label)], axis=0)
-        yield images, labels
+            images = tf.concat(values=[images, font2tensor(choice_font)], axis=0)
+            image_labels = tf.concat(
+                values=[image_labels, tf.expand_dims(tf.one_hot(depth=len(labels), indices=choice_label - 1), 0)],
+                axis=0)
+        yield images, image_labels
 
 
-generator = generate_batch(5, labels)
+generator = generate_batch(10, font_labels)
 
-print(generator.__next__())
-
-
+with tf.Session() as sess:
+    image, labels = generator.__next__()
+    print(sess.run(labels))

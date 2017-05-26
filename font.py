@@ -103,9 +103,12 @@ class Font(object):
 
     def __init__(self, arg1, arg2=None):
         # option 1: a path to a font to go find the details yourself
-        if type(arg1) is str and arg2 is None:
+        if type(arg1) is str:
             self.path = arg1
-            self.size = 50
+            if arg2 is not None:
+                self.size = arg2
+            else:
+                self.size = 50
             self.open_path()
 
             self.extract_PIL()
