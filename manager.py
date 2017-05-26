@@ -14,9 +14,6 @@ keys = list()
 fonts = dict()
 
 
-COMPARABLE_FEATURES = ["slant", "thickness", "width", "height",
-                       "ratio", "thickness_variation"]
-
 total_files = 0
 loaded_files = 0
 current_file_name = ""
@@ -122,10 +119,6 @@ def load_fonts():
     load_cache()
     load_files()
 
-# def update_cache():
-#     for fontdir in config.FONT_DIRS:
-#         for dirpath, dirnames, filenames
-
 
 def scale(feature, value):
     """ Scales a value to its standard dev. across the font set. """
@@ -139,31 +132,10 @@ def scale_features():
     I might end up pasting the scales from my own fonts into the code, should
     be just fine.
     """
-    for f in COMPARABLE_FEATURES:
+    for f in Font.compare[0]:
         population = []
         for k in keys:
             population.append(fonts[k].__dict__[f])
         mean = sum(population) / max(len(population), 1)
         stddev = statistics.pstdev(population)
         print("Feature {} Mean {} Standard Dev. {}".format(f, mean, stddev))
-
-
-def find_features(features, values):
-    def sortkey(vals):
-        total = 0
-        for v, f in zip(values, features):
-            if type(v) in [float, int]:
-                # TODO feature scaling
-                total += abs(scale(f, (v - fonts[vals].__dict__[f]) ** 2))
-            else:
-                total += 0 if v == fonts[vals].__dict__[f] else 1
-        return sqrt(total)
-
-    keys.sort(key=sortkey)
-
-
-def search_fonts(searchstr):
-    def sortkey(vals):
-        return 0 if searchstr.lower() in vals.lower() else 1
-
-    keys.sort(key=sortkey)
