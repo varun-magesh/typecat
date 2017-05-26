@@ -63,7 +63,7 @@ class FilterPane(Gtk.Box):
         Gtk.Box.__init__(self, orientation=Gtk.Orientation.VERTICAL, spacing=6)
         self.filterwidgets = []
         self.set_filter = set_filter
-        self.searchbar = Gtk.Entry(valign=Gtk.Align.START)
+        self.searchbar = Gtk.SearchEntry(valign=Gtk.Align.START)
         self.searchbar.connect("activate", self.filter_)
         self.pack_start(self.searchbar, False, False, 5)
         for num, f in enumerate(Font.compare):
