@@ -9,6 +9,7 @@ class FontBoxBox(Gtk.ScrolledWindow):
     def __init__(self):
         Gtk.ScrolledWindow.__init__(self)
         self.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
+        self.set_border_width(10)
         self.set_hexpand(True)
         self.set_vexpand(True)
 
@@ -16,6 +17,9 @@ class FontBoxBox(Gtk.ScrolledWindow):
         self.flowbox.set_valign(Gtk.Align.START)
         self.flowbox.set_max_children_per_line(30)
         self.flowbox.set_selection_mode(Gtk.SelectionMode.NONE)
+        self.flowbox.set_homogeneous(True)
+
+        self.preview_text = "Handgloves"
 
         self.add(self.flowbox)
 
@@ -29,5 +33,12 @@ class FontBoxBox(Gtk.ScrolledWindow):
             self.flowbox.add(b)
         self.flowbox.show_all()
 
+    def text(self, child, user_args):
+        child.set_text(self.preview_text)
+
+    def set_text(self, *args):
+        self.flowbox.select_all()
+        self.flowbox.selected_foreach(self.text)
+        self.show_all()
     def set_sort_func(self, func):
         self.flowbox.set_sort_func(func)

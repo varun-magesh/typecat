@@ -34,7 +34,7 @@ manager.keys.sort(key=str.lower)
 font.scale_features()
 
 fbb = FontBoxBox()
-pp = PreviewPanel()
+pp = PreviewPanel(fbb.set_text)
 fp = FilterPane(fbb.set_sort_func)
 grid.set_row_homogeneous(False)
 grid.attach(fp, 0, 0, 1, 2)
