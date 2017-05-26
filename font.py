@@ -1,4 +1,5 @@
 from PIL import Image, ImageDraw, ImageFont, ImageStat, ImageOps
+import manager
 import config
 import font2img as f2i
 from numpy import polyfit
@@ -57,43 +58,42 @@ class Font(object):
     ]
 
     compare = [
-        ("slant", -1),
-        ("thickness", -1),
-        ("width", -1),
-        ("height", -1),
-        ("ratio", -1),
-        ("thickness_variation", -1)
+        ["slant", -1],
+        ["thickness", -1],
+        ["width", -1],
+        ["height", -1],
+        ["ratio", -1],
+        ["thickness_variation", -1]
     ]
-    
+
     search_str = ""
 
     def dist(self):
 
-        if Font.search_str != "":
-            return 0 if search_str in self.name else 1
-
         total = 0
+        if Font.search_str != "" and Font.search_str in self.name:
+            total += 100
         for f, v in Font.compare:
-            if v == -1: 
+            if v == -1:
                 continue
             if type(v) in [float, int]:
-                total += abs(v - scale(f, (self.__dict__[f]) ** 2))
+                total += (v - manager.scale(f, (self.__dict__[f]))) ** 2
             else:
                 total += 0 if v == self.__dict__[f] else 1
         return sqrt(total)
 
     def __lt__(self, other):
-        return self.dist() > other.dist()    
+        return self.dist() < other.dist()
 
     def __gt__(self, other):
-        return self.dist() < other.dist()
+        return self.dist() > other.dist()
 
     def __eq__(self, other):
         return self.dist() == other.dist()
 
     def __ne__(self, other):
         return self.dist() != other.dist()
-                 
+
     def __init__(self, arg1, arg2=None):
         # option 1: a path to a font to go find the details yourself
         if type(arg1) is str and arg2 is None:
@@ -341,4 +341,4 @@ class Font(object):
         style = pilfont.font.style
         return "{} {}".format(family, style)
 
-    
+
