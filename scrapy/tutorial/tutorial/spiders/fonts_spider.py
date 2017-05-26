@@ -11,8 +11,8 @@ class FontSpider(scrapy.Spider):
             # 503: "mono",
             601: "calligraphy",
             401: "blackletter",
-            603: "handwritten",
-            604: "brush"
+            # 603: "handwritten",
+            # 604: "brush"
 
         }
 

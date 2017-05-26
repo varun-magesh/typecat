@@ -68,7 +68,7 @@ ITEM_PIPELINES = {
    'tutorial.pipelines.FontZipPipeline': 1,
 }
 
-FILES_STORE = '/home/apcs/dl_fonts/script'
+FILES_STORE = '/home/timothy/dl_fonts/script'
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See http://doc.scrapy.org/en/latest/topics/autothrottle.html

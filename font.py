@@ -334,6 +334,27 @@ class Font(object):
         return "Font {} at path {}".format(self.name, self.path)
 
     @staticmethod
+    def scale(feature, value):
+        """ Scales a value to its standard dev. across the font set. """
+        return (config.SCALE[feature][0] - value) / config.SCALE[feature][1]
+
+    @staticmethod
+    def scale_features():
+        """
+        Calculates the stddev and mean of each feature.
+        Not necessary to be run more than once in a while.
+        I might end up pasting the scales from my own fonts into the code, should
+        be just fine.
+        """
+        for f in Font.compare[0]:
+            population = []
+            for k in keys:
+                population.append(fonts[k].__dict__[f])
+            mean = sum(population) / max(len(population), 1)
+            stddev = statistics.pstdev(population)
+            print("Feature {} Mean {} Standard Dev. {}".format(f, mean, stddev))
+
+    @staticmethod
     def extract_name(d):
         """ Extracts just the name from a font to check if it's loaded """
         pilfont = ImageFont.truetype(d)
