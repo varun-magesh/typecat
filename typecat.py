@@ -29,9 +29,6 @@ root.add(grid)
 manager.load_cache()
 manager.keys.sort(key=str.lower)
 
-def entry_callback(s):
-    manager.search_fonts(s)
-
 fbb = FontBoxBox()
 fp = FilterPane(fbb.set_sort_func)
 grid.add(fp)

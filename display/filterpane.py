@@ -1,5 +1,3 @@
-import manager
-import config
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
@@ -40,8 +38,9 @@ class FilterOption(Gtk.Box):
 
 
 class FilterPane(Gtk.Box):
-        
-    def sort_func(child1, child2, user_data):
+
+    @staticmethod
+    def sort_func(child1, child2, *user_data):
         if child1.font > child2.font:
             return -1
         if child1.font < child2.font:
@@ -50,13 +49,11 @@ class FilterPane(Gtk.Box):
             return 0
 
     def filter(self):
-        active_feats = []
-        active_values = []
         for idx, fo in enumerate(self.filterwidgets):
             if fo.checkbox.get_state():
-                compare[idx][1] = fo.slider_value
+                Font.compare[idx][1] = fo.slider_value
 
-        self.set_filter(self.sort_func)
+        self.set_filter(FilterPane.sort_func)
 
     def __init__(self, set_filter):
         Gtk.Box.__init__(self, orientation=Gtk.Orientation.VERTICAL, spacing=6)
