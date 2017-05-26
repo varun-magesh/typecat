@@ -24,3 +24,8 @@ class PreviewPanel(Gtk.Box):
         self.preview_size.set_value(75)
         self.preview_size.connect("value-changed", self.set_size)
         self.pack_start(self.preview_size, False, False, 5)
+
+    # def on_change_preview_size(spinner):
+    #
+    # def on_change_preview_text(entry):
+

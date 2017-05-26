@@ -13,18 +13,22 @@ from display.previewpanel import PreviewPanel
 
 #Check if we need to do first time setup
 if not config.read_config():
-        cw = GtkConfigWindow()
-        cw.show_all()
-        cw.connect("delete-event", Gtk.main_quit)
-        Gtk.main()
-        manager.load_files()
+    cw = GtkConfigWindow()
+    cw.show_all()
+    cw.connect("delete-event", Gtk.main_quit)
+    Gtk.main()
+    manager.load_files()
 
 
 #Initialize window and grid
 root = Gtk.Window()
 root.connect("delete-event", Gtk.main_quit)
+root.set_title("typecat")
 grid = Gtk.Grid()
 root.add(grid)
+def realize(root):
+    print(root.get_style())
+root.connect("realize", realize)
 #Initialize main font view
 #root.add(fbb)
 
@@ -36,12 +40,14 @@ font.scale_features()
 fbb = FontBoxBox()
 pp = PreviewPanel(fbb.set_text)
 fp = FilterPane(fbb.set_sort_func)
+root.realize()
 grid.set_row_homogeneous(False)
 grid.attach(fp, 0, 0, 1, 2)
 grid.attach(pp, 1, 0, 1, 1)
 grid.attach(fbb, 1, 1, 1, 1)
 grid.set_border_width(5)
 grid.set_row_spacing(5)
+
 
 root.show_all()
 Gtk.main()
