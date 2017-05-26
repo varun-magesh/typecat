@@ -33,12 +33,17 @@ class FontBoxBox(Gtk.ScrolledWindow):
             self.flowbox.add(b)
         self.flowbox.show_all()
 
-    def text(self, child, user_args):
+    def text(self, box, child, *user_args):
         child.set_text(self.preview_text)
 
-    def set_text(self, *args):
+    def set_text(self, text):
+        self.preview_text = text
+        self.flowbox.set_selection_mode(Gtk.SelectionMode.MULTIPLE)
         self.flowbox.select_all()
         self.flowbox.selected_foreach(self.text)
         self.show_all()
+        self.flowbox.unselect_all()
+        self.flowbox.set_selection_mode(Gtk.SelectionMode.NONE)
+
     def set_sort_func(self, func):
         self.flowbox.set_sort_func(func)

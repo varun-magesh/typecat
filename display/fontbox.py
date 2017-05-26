@@ -6,20 +6,22 @@ from gi.repository import Gtk
 class FontBox(Gtk.FlowBoxChild):
 
     def set_text(self, arg1):
-        if arg1 is str:
-            self.text = arg1
-        elif arg1 is int:
-            self.size = arg1
-        self.box = Gtk.Box()
-        self.box.set_border_width(5)
+        if type(arg1) is str:
+                self.text = arg1
+        if type(arg1) is int:
+                self.font_size = arg1
         try:
-            self.box.remove(self.image)
+            self.box.destroy()
         except AttributeError:
             pass
+        self.box = Gtk.Box()
+        self.box.set_border_width(5)
         self.image = Gtk.Image(halign=Gtk.Align.CENTER)
+        self.font.set_size(self.font_size)
         self.image.set_from_pixbuf(f2i.multiline_gtk(self.text, self.font.pilfont, self.size))
         self.box.pack_start(self.image, True, False, 0)
         self.frame.add(self.box)
+        self.show_all()
 
     def __init__(self, font, text="Handgloves", size=(200, 150), font_size=75):
         Gtk.FlowBoxChild.__init__(self)
