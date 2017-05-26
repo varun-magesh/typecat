@@ -1,10 +1,18 @@
 from PIL import Image, ImageDraw, ImageFont, ImageStat, ImageOps
-import manager
 import config
+import statistics
 import font2img as f2i
 from numpy import polyfit
 from math import sin, cos, pi, sqrt
 import pickle
+import manager
+
+#mean stddev min max
+MEAN = 0
+STDDEV = 1
+MIN = 2
+MAX = 3
+scale_values = {}
 
 
 class RenderError(Exception):
@@ -76,7 +84,7 @@ class Font(object):
             if v == -1:
                 continue
             if type(v) in [float, int]:
-                total += (v - manager.scale(f, self.__dict__[f])) ** 2
+                total += (v - scale(f, self.__dict__[f])) ** 2
             else:
                 total += 0 if v == self.__dict__[f] else 1
         return sqrt(total)
@@ -333,6 +341,27 @@ class Font(object):
         return "Font {} at path {}".format(self.name, self.path)
 
     @staticmethod
+    def scale(feature, value):
+        """ Scales a value to its standard dev. across the font set. """
+        return (config.SCALE[feature][0] - value) / config.SCALE[feature][1]
+
+    @staticmethod
+    def scale_features():
+        """
+        Calculates the stddev and mean of each feature.
+        Not necessary to be run more than once in a while.
+        I might end up pasting the scales from my own fonts into the code, should
+        be just fine.
+        """
+        for f in Font.compare[0]:
+            population = []
+            for k in manager.keys:
+                population.append(manager.fonts[k].__dict__[f])
+            mean = sum(population) / max(len(population), 1)
+            stddev = statistics.pstdev(population)
+            print("Feature {} Mean {} Standard Dev. {}".format(f, mean, stddev))
+
+    @staticmethod
     def extract_name(d):
         """ Extracts just the name from a font to check if it's loaded """
         pilfont = ImageFont.truetype(d)
@@ -340,4 +369,26 @@ class Font(object):
         style = pilfont.font.style
         return "{} {}".format(family, style)
 
+def scale(feature, value):
+    """ Scales a value to its standard dev. across the font set. """
+    xprime = ((value - scale_values[feature][MIN]) / (scale_values[feature][MAX] - scale_values[feature][MIN])) * 10 - 5
+    #x2prime = (xprime - scale_values[feature][MEAN]) / scale_values[feature][STDDEV]
+    return xprime
+
+
+def scale_features():
+    """
+    Calculates the stddev, mean, min, and max of each feature.
+    """
+    for f in Font.compare:
+        population = []
+        for k in manager.keys:
+            population.append(manager.fonts[k].__dict__[f[0]])
+        maximum = max(population)
+        minimum = min(population)
+        for p in population:
+            p = (p - minimum) / (maximum - minimum)
+        mean = sum(population) / max(len(population), 1)
+        stddev = statistics.pstdev(population)
+        scale_values[f[0]] = (mean, stddev, max(population), min(population))
 

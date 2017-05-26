@@ -4,6 +4,7 @@ from gi.repository import Gtk
 
 import config
 import manager
+import font
 
 from display.configwindow import GtkConfigWindow
 from display.fontboxbox import FontBoxBox
@@ -30,7 +31,7 @@ root.add(grid)
 #load font files from cache
 manager.load_cache()
 manager.keys.sort(key=str.lower)
-manager.scale_features()
+font.scale_features()
 
 fbb = FontBoxBox()
 pp = PreviewPanel()

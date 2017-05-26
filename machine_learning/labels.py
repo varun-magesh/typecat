@@ -1,6 +1,6 @@
 labels = {
-    1: "sans",
-    2: "serif",
-    3: "mono",
-    4: "handwriting",
+    "sans": 1,
+    "serif": 2,
+    "mono": 3,
+    "script": 4,
 }

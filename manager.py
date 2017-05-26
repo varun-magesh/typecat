@@ -1,6 +1,6 @@
 import os
 import pickle
-import statistics
+
 import threading
 from math import sqrt
 
@@ -8,7 +8,7 @@ from gi.repository import GLib, GObject, Gtk
 
 import config
 from display.configwindow import GtkFontLoadingWindow
-from font import RenderError, Font
+import font
 
 keys = list()
 fonts = dict()
@@ -19,13 +19,6 @@ loaded_files = 0
 current_file_name = ""
 total_cache = 0
 loaded_cache = 0
-
-#mean stddev min max
-MEAN = 0
-STDDEV = 1
-MIN = 2
-MAX = 3
-scale_values = {}
 
 
 def load_cache():
@@ -51,7 +44,7 @@ def load_cache():
                 config.CACHE_LOCATION, f), "rb"))
             fonts[fontname] = loadfont
             print("Loaded {} from cache".format(fonts[fontname].name))
-        except RenderError:
+        except font.RenderError:
             print("Skipping {}, unable to render correctly, adding to exceptions".format(fontname))
             exceptions.add(fontname)
         loaded_cache += 1
@@ -82,12 +75,12 @@ def load_files():
 
         for f in fontpaths:
             try:
-                fontname = Font.extract_name(f)
+                fontname = font.Font.extract_name(f)
                 current_file_name = fontname
                 if fontname in exceptions or f in exceptions:
                     print("Skipping font {}, in exception list".format(fontname))
                     continue
-                g = Font(f)
+                g = font.Font(f)
                 fonts[fontname] = g
                 g.save()
                 print("Loaded {} from file".format(
@@ -125,27 +118,3 @@ def load_files():
 def load_fonts():
     load_cache()
     load_files()
-
-
-def scale(feature, value):
-    """ Scales a value to its standard dev. across the font set. """
-    xprime = ((value - scale_values[feature][MIN]) / (scale_values[feature][MAX] - scale_values[feature][MIN])) * 10 - 5
-    #x2prime = (xprime - scale_values[feature][MEAN]) / scale_values[feature][STDDEV]
-    return xprime
-
-
-def scale_features():
-    """
-    Calculates the stddev, mean, min, and max of each feature.
-    """
-    for f in Font.compare:
-        population = []
-        for k in keys:
-            population.append(fonts[k].__dict__[f[0]])
-        maximum = max(population)
-        minimum = min(population)
-        for p in population:
-            p = (p - minimum) / (maximum - minimum)
-        mean = sum(population) / max(len(population), 1)
-        stddev = statistics.pstdev(population)
-        scale_values[f[0]] = (mean, stddev, max(population), min(population))
