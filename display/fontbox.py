@@ -18,7 +18,7 @@ class FontBox(Gtk.FlowBoxChild):
         self.box.set_border_width(5)
         self.image = Gtk.Image(halign=Gtk.Align.CENTER)
         self.font.set_size(self.font_size)
-        self.image.set_from_pixbuf(f2i.multiline_gtk(self.text, self.font.pilfont, self.size))
+        self.image.set_from_pixbuf(f2i.multiline_gtk(self.text, self.font.pilfont, self.size, background=self.bg, foreground=self.fg))
         self.box.pack_start(self.image, True, False, 0)
         self.frame.add(self.box)
         self.show_all()
@@ -31,6 +31,20 @@ class FontBox(Gtk.FlowBoxChild):
         self.font_size = int(size[0]/9)
         self.font.set_size(self.font_size)
         self.text = text
+
+        self.entry = Gtk.Entry()
+        bg = self.entry.get_style_context().get_background_color(0).to_string()
+        fg = self.entry.get_style_context().get_color(0).to_string()
+        bg = bg[bg.index("(")+1:bg.index(")")]
+        fg = fg[fg.index("(")+1:fg.index(")")]
+        bg = bg.split(",")
+        fg = fg.split(",")
+        for i in range(len(bg)):
+            bg[i] = int(bg[i])
+        for i in range(len(fg)):
+            fg[i] = int(fg[i])
+        self.bg = tuple(bg)
+        self.fg = tuple(fg)
 
         self.size = size
 

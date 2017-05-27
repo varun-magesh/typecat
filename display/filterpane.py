@@ -1,6 +1,6 @@
 import gi
 gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk
+from gi.repository import Gtk, Gdk
 from font import Font
 
 
@@ -62,10 +62,12 @@ class FilterPane(Gtk.Box):
     def __init__(self, set_filter):
         Gtk.Box.__init__(self, orientation=Gtk.Orientation.VERTICAL, spacing=0)
         self.set_border_width(5)
+        self.STYLE_PROPERTY_BORDER_STYLE = Gtk.BorderStyle.OUTSET
         self.filterwidgets = []
         self.set_filter = set_filter
         self.searchbar = Gtk.SearchEntry(valign=Gtk.Align.START)
         self.searchbar.connect("activate", self.filter_)
+        print(self.searchbar.get_style_context().get_background_color(0))
         self.pack_start(self.searchbar, False, False, 0)
         for num, f in enumerate(Font.compare):
             fw = FilterOption(f[0], self.filter_)
