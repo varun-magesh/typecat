@@ -1,4 +1,4 @@
-labels = {
+font_labels = {
     "sans": 1,
     "serif": 2,
     "mono": 3,

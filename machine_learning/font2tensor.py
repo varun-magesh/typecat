@@ -6,14 +6,6 @@ import random
 from PIL import Image, ImageDraw, ImageOps
 import font
 
-font_labels = {
-    "sans": 1,
-    "serif": 2,
-    "mono": 3,
-    "script": 4,
-}
-
-
 def font2tensor(font):
     font.set_size(36)
     img = fingerprint(font.pilfont)
@@ -45,13 +37,15 @@ def generate_batch(batch_size, labels):
             if idx != -1 and d[idx:] in config.FONT_FILE_EXTENSIONS:
                 font_training_paths[(os.path.join(dirpath, d))] = labels[dirpath.split("/")[-1]]
     while True:
-        print(len(labels))
         images = tf.zeros(shape=[0, 2304], dtype=tf.float32)
         image_labels = tf.zeros(dtype=tf.float32, shape=[0, len(labels)])
-        for i in range(0, batch_size):
+        counter = 0
+        while counter < batch_size:
             choice = random.choice(list(font_training_paths.keys()))
-            print(choice)
-            choice_font = font.Font(choice, 36)
+            try:
+                choice_font = font.Font(choice, 36)
+            except Exception:
+                continue
             if choice_font is None:
                 continue
             choice_label = font_training_paths[choice]
@@ -59,11 +53,5 @@ def generate_batch(batch_size, labels):
             image_labels = tf.concat(
                 values=[image_labels, tf.expand_dims(tf.one_hot(depth=len(labels), indices=choice_label - 1), 0)],
                 axis=0)
+            counter+=1
         yield images, image_labels
-
-
-generator = generate_batch(10, font_labels)
-
-with tf.Session() as sess:
-    image, labels = generator.__next__()
-    print(sess.run(labels))
