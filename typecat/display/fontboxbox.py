@@ -19,6 +19,9 @@ class FontBoxBox(Gtk.ScrolledWindow):
         self.flowbox.set_selection_mode(Gtk.SelectionMode.NONE)
         self.flowbox.set_homogeneous(True)
 
+        self.entry= Gtk.Entry()
+        # FIXME URGENT this method is deprecated we should use CSS instead
+
         self.preview_text = "Handgloves"
 
         self.add(self.flowbox)
