@@ -6,12 +6,10 @@ from math import sqrt
 
 from gi.repository import GLib, GObject, Gtk
 
-import config
-from display.configwindow import GtkFontLoadingWindow
-import font
-
-keys = list()
-fonts = dict()
+import typecat.config as config
+from typecat.display.configwindow import GtkFontLoadingWindow
+from typecat.font import Font, RenderError
+import typecat.font as font
 
 
 total_files = 0
@@ -41,18 +39,15 @@ def load_cache():
         fontname = f[:-7]
         try:
             loadfont = pickle.load(open("{}/{}".format(
-                config.CACHE_LOCATION, f), "rb"))
-            fonts[fontname] = loadfont
-            print("Loaded {} from cache".format(fonts[fontname].name))
-        except font.RenderError:
+                                   config.CACHE_LOCATION, f), "rb"))
+            Font.fonts[fontname] = loadfont
+            print("Loaded {} from cache".format(Font.fonts[fontname].name))
+        except RenderError:
             print("Skipping {}, unable to render correctly, adding to exceptions".format(fontname))
             exceptions.add(fontname)
         loaded_cache += 1
-    global keys
-    keys = list(fonts.keys())
     pickle.dump(exceptions, open("{}/exceptions.tcat".format(config.CACHE_LOCATION), "wb"))
     print("Dumping to path {}/exceptions.tcat".format(config.CACHE_LOCATION))
-
 
 
 def load_files():
@@ -76,13 +71,13 @@ def load_files():
 
         for f in fontpaths:
             try:
-                fontname = font.Font.extract_name(f)
+                fontname = Font.extract_name(f)
                 current_file_name = fontname
                 if fontname in exceptions or f in exceptions:
                     print("Skipping font {}, in exception list".format(fontname))
                     continue
-                g = font.Font(f)
-                fonts[fontname] = g
+                g = Font(f)
+                Font.fonts[fontname] = g
                 g.save()
                 print("Loaded {} from file".format(
                     g.name))
@@ -111,9 +106,6 @@ def load_files():
     thread.start()
     Gtk.main()
     thread.join()
-
-    global keys
-    keys = list(fonts.keys())
 
 
 def load_fonts():

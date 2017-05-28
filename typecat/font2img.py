@@ -1,5 +1,5 @@
 from PIL import Image, ImageDraw, ImageTk
-import config
+import typecat.config as config
 import gi
 gi.require_version('Gtk', '3.0')
 import array

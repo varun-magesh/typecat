@@ -3,14 +3,14 @@ import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 
-import config
-import manager
-import font
+import typecat.config as config
+import typecat.manager as manager
+import typecat.font as font
 
-from display.configwindow import GtkConfigWindow
-from display.fontboxbox import FontBoxBox
-from display.filterpane import FilterPane
-from display.previewpanel import PreviewPanel
+from typecat.display.configwindow import GtkConfigWindow
+from typecat.display.fontboxbox import FontBoxBox
+from typecat.display.filterpane import FilterPane
+from typecat.display.previewpanel import PreviewPanel
 
 #Check if we need to do first time setup
 if not config.read_config():
@@ -35,7 +35,6 @@ root.connect("realize", realize)
 
 #load font files from cache
 manager.load_cache()
-manager.keys.sort(key=str.lower)
 font.scale_features()
 
 fbb = FontBoxBox()

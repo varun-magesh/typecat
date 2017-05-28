@@ -1,5 +1,5 @@
-import manager
-from display.fontbox import FontBox
+from typecat.font import Font
+from typecat.display.fontbox import FontBox
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
@@ -31,8 +31,8 @@ class FontBoxBox(Gtk.ScrolledWindow):
     def refresh(self):
         for i in self.flowbox.get_children():
             i.destroy()
-        for num, name in enumerate(manager.keys):
-            b = FontBox(manager.fonts[name])
+        for num, name in enumerate(Font.fonts.keys()):
+            b = FontBox(Font.fonts[name])
             self.flowbox.add(b)
         self.flowbox.show_all()
 

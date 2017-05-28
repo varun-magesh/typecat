@@ -1,6 +1,5 @@
-import config
+import typecat. config as config
 from os.path import isdir
-import manager
 import threading
 from os import mkdir
 import gi

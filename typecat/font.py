@@ -1,11 +1,10 @@
 from PIL import Image, ImageDraw, ImageFont, ImageStat, ImageOps
-import config
+import typecat.config as config
 import statistics
-import font2img as f2i
+import typecat.font2img as f2i
 from numpy import polyfit
 from math import sin, cos, pi, sqrt
 import pickle
-import manager
 
 #mean stddev min max
 MEAN = 0
@@ -75,6 +74,7 @@ class Font(object):
     ]
 
     search_str = ""
+    fonts = dict()
 
     def dist(self):
         total = 0
@@ -358,8 +358,8 @@ class Font(object):
         """
         for f in Font.compare[0]:
             population = []
-            for k in manager.keys:
-                population.append(manager.fonts[k].__dict__[f])
+            for k in Font.fonts.keys():
+                population.append(Font.fonts[k].__dict__[f])
             mean = sum(population) / max(len(population), 1)
             stddev = statistics.pstdev(population)
             print("Feature {} Mean {} Standard Dev. {}".format(f, mean, stddev))
@@ -385,8 +385,8 @@ def scale_features():
     """
     for f in Font.compare:
         population = []
-        for k in manager.keys:
-            population.append(manager.fonts[k].__dict__[f[0]])
+        for k in Font.fonts.keys():
+            population.append(Font.fonts[k].__dict__[f[0]])
         maximum = max(population)
         minimum = min(population)
         for p in population:
