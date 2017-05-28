@@ -28,14 +28,16 @@ def fingerprint(pilfont):
     return img.convert('L')
 
 
-def generate_batch(batch_size, labels):
-    fontdir = '/home/timothy/dl_fonts'
+def generate_batch(batch_size, labels, fontdir, do_labels):
     font_training_paths = {}
     for dirpath, dirnames, filenames in os.walk(fontdir):
         for d in filenames:
             idx = d.rfind(".")
             if idx != -1 and d[idx:] in config.FONT_FILE_EXTENSIONS:
-                font_training_paths[(os.path.join(dirpath, d))] = labels[dirpath.split("/")[-1]]
+                if do_labels:
+                    font_training_paths[(os.path.join(dirpath, d))] = labels[dirpath.split("/")[-1]]
+                else:
+                    font_training_paths[(os.path.join(dirpath, d))] = 'none'
     while True:
         images = tf.zeros(shape=[0, 2304], dtype=tf.float32)
         image_labels = tf.zeros(dtype=tf.float32, shape=[0, len(labels)])
@@ -48,10 +50,13 @@ def generate_batch(batch_size, labels):
                 continue
             if choice_font is None:
                 continue
-            choice_label = font_training_paths[choice]
             images = tf.concat(values=[images, font2tensor(choice_font)], axis=0)
-            image_labels = tf.concat(
-                values=[image_labels, tf.expand_dims(tf.one_hot(depth=len(labels), indices=choice_label - 1), 0)],
-                axis=0)
+            if do_labels:
+                choice_label = font_training_paths[choice]
+
+                image_labels = tf.concat(values=[image_labels, tf.expand_dims(tf.one_hot(depth=len(labels), indices=choice_label - 1), 0)], axis=0)
             counter+=1
-        yield images, image_labels
+        if do_labels:
+            yield images, image_labels
+        else:
+            yield images
