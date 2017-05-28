@@ -11,3 +11,5 @@ setup(name='typecat',
       keywords='font typography sort categorize search',
       include_package_data=True,
       zip_safe=False)
+
+print("ACTION REQUIRED: Install GTK+ and PyGObject before use; these can be found at https://www.gtk.org/download/ and https://pygobject.readthedocs.io/en/latest/getting_started.html respectively.")

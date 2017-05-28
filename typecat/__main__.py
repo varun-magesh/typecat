@@ -1,7 +1,16 @@
-import gi
+import sys
 
-gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk
+try:
+    import gi
+except ModuleNotFoundError:
+    print("FATAL ERROR: GObject Introspection (gi) not found; please install it from https://pygobject.readthedocs.io/en/latest/getting_started.html, or preferably, your package manager.")
+    sys.exit()
+
+try:
+    gi.require_version('Gtk', '3.0')
+    from gi.repository import Gtk
+except ModuleNotFoundError:
+    print("FATAL ERROR: GTK not found; please install it from https://www.gtk.org/download/, or preferably, your package manager.")
 
 import typecat.config as config
 import typecat.manager as manager
