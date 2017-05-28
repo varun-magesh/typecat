@@ -1,4 +1,5 @@
 import gi
+
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 
@@ -27,7 +28,7 @@ root.set_title("typecat")
 grid = Gtk.Grid()
 root.add(grid)
 def realize(root):
-    print(root.get_style())
+    pass
 root.connect("realize", realize)
 #Initialize main font view
 #root.add(fbb)

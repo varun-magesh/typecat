@@ -32,9 +32,17 @@ class FontBox(Gtk.FlowBoxChild):
         self.font.set_size(self.font_size)
         self.text = text
 
-        self.entry = Gtk.Entry()
-        bg = self.entry.get_style_context().get_background_color(0).to_string()
-        fg = self.entry.get_style_context().get_color(0).to_string()
+        self.size = size
+
+        self.title = self.font.name if len(self.font.name) < 30 else self.font.name[:27] + "..."
+        self.frame.set_label(self.title)
+        self.frame.set_label_align(.1, 0)
+
+        entry = Gtk.Entry()
+        bg = entry.get_style_context().get_background_color(0)
+        fg = entry.get_style_context().get_color(0).to_string()
+        self.frame.override_background_color(Gtk.StateFlags.NORMAL, bg)
+        bg = bg.to_string()
         bg = bg[bg.index("(")+1:bg.index(")")]
         fg = fg[fg.index("(")+1:fg.index(")")]
         bg = bg.split(",")
@@ -46,11 +54,6 @@ class FontBox(Gtk.FlowBoxChild):
         self.bg = tuple(bg)
         self.fg = tuple(fg)
 
-        self.size = size
-
-        self.title = self.font.name if len(self.font.name) < 30 else self.font.name[:27] + "..."
-        self.frame.set_label(self.title)
-        self.frame.set_label_align(.1, .5)
         self.set_text(text)
 
         self.add(self.frame)

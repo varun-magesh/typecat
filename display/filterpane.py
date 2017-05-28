@@ -67,7 +67,6 @@ class FilterPane(Gtk.Box):
         self.set_filter = set_filter
         self.searchbar = Gtk.SearchEntry(valign=Gtk.Align.START)
         self.searchbar.connect("activate", self.filter_)
-        print(self.searchbar.get_style_context().get_background_color(0))
         self.pack_start(self.searchbar, False, False, 0)
         for num, f in enumerate(Font.compare):
             fw = FilterOption(f[0], self.filter_)
