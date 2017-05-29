@@ -39,20 +39,8 @@ class FontBox(Gtk.FlowBoxChild):
         self.frame.set_label_align(.1, 0)
 
         entry = Gtk.Entry()
-        bg = entry.get_style_context().get_background_color(0)
-        fg = entry.get_style_context().get_color(0).to_string()
-        self.frame.override_background_color(Gtk.StateFlags.NORMAL, bg)
-        bg = bg.to_string()
-        bg = bg[bg.index("(")+1:bg.index(")")]
-        fg = fg[fg.index("(")+1:fg.index(")")]
-        bg = bg.split(",")
-        fg = fg.split(",")
-        for i in range(len(bg)):
-            bg[i] = int(bg[i])
-        for i in range(len(fg)):
-            fg[i] = int(fg[i])
-        self.bg = tuple(bg)
-        self.fg = tuple(fg)
+        self.bg = (255, 255, 255)
+        self.fg = (0, 0, 0)
 
         self.set_text(text)
 
