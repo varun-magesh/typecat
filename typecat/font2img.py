@@ -1,40 +1,9 @@
-from PIL import Image, ImageDraw, ImageTk
+from PIL import Image, ImageDraw
 import typecat.config as config
 import gi
 gi.require_version('Gtk', '3.0')
 import array
 from gi.repository import Gtk, Gdk, GLib, GdkPixbuf
-
-def multiline_tk(text, pilfont, size, mode="RGB",
-                 padx=0, pady=0, spacing=0,
-                 background=config.PIL_BACKGROUND, foreground=(0, 0, 0)):
-        """ Automatically spaces and fits text to an image """
-        image = Image.new(mode, size, background)
-        draw = ImageDraw.Draw(image)
-
-        totalwidth = size[0] - padx * 2
-        textlist = list(text)
-        # add a newline whenever we run out of room
-        s = 0
-        e = 0
-        while e < len(textlist):
-            substr = "".join(textlist[s:e])
-            if textlist[e] == '\n':
-                s = e + 1
-                e = e + 2
-            elif pilfont.getsize(substr)[0] > totalwidth:
-                textlist.insert(e - 1, '\n')
-                s = e
-                e += 1
-            else:
-                e += 1
-
-        draw.multiline_text((padx, pady), "".join(textlist), font=pilfont,
-                            fill=foreground, spacing=spacing)
-
-        photo = ImageTk.PhotoImage(image)
-        return photo
-
 
 def multiline_gtk(text, pilfont, size, mode="RGB", padx=0, pady=0, spacing=0,
                   background=config.PIL_BACKGROUND, foreground=(0, 0, 0)):
