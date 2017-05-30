@@ -36,15 +36,12 @@ root.connect("delete-event", Gtk.main_quit)
 root.set_title("typecat")
 grid = Gtk.Grid()
 root.add(grid)
-def realize(root):
-    pass
-root.connect("realize", realize)
 #Initialize main font view
 #root.add(fbb)
 
 #load font files from cache
 manager.load_cache()
-font.scale_features()
+font.Font.scale_features()
 
 fbb = FontBoxBox()
 pp = PreviewPanel(fbb.set_text)

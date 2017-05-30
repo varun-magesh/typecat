@@ -4,7 +4,6 @@ import typecat.font2img as f2i
 from numpy import polyfit
 import numpy as np
 import scipy.stats as stats
-import matplotlib.pyplot as pl
 from math import sin, cos, pi, sqrt
 import pickle
 
@@ -81,6 +80,7 @@ class Font(object):
 
     def dist(self):
         total = 0
+
         if self.category in Font.search_categories:
             total += 1000
         if Font.search_str != "" and Font.search_str.lower() in self.name.lower():
@@ -92,7 +92,9 @@ class Font(object):
                 total += (v - Font.scale(f, self.__dict__[f])) ** 2
             else:
                 total += 0 if v == self.__dict__[f] else 1
+        print(total)
         return sqrt(total)
+
 
     def __lt__(self, other):
         return self.dist() < other.dist()
@@ -378,9 +380,6 @@ class Font(object):
                 p = (p - minimum) / (maximum - minimum)
             population.sort()
             fit = stats.norm.pdf(population, np.mean(population), np.std(population))
-            pl.plot(population, fit, '-o')
-            pl.hist(population, normed=True)
-            pl.show()
             mean = np.mean(population)
             stddev = np.std(population)
             Font.scale_values[f[0]] = (mean, stddev, max(population), min(population))
