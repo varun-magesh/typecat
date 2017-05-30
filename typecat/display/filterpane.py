@@ -69,9 +69,16 @@ class FilterPane(Gtk.Box):
         self.searchbar.connect("activate", self.filter_)
         self.pack_start(self.searchbar, False, False, 0)
         for num, f in enumerate(Font.compare):
-            fw = FilterOption(f[0], self.filter_)
+            filterfunc = self.filter_
+            if len(Font.fonts) > 200:
+                filterfunc = lambda *args: 0
+            fw = FilterOption(f[0], filterfunc)
             self.filterwidgets.append(fw)
             padding = 5
             if num == 0:
                 padding = 10
             self.pack_start(fw, False, False, padding)
+        if len(Font.fonts) > 200:
+            self.button = Gtk.Button.new_with_label("Sort")
+            self.button.connect("clicked", self.filter_)
+            self.pack_start(self.button, False, False, 0)

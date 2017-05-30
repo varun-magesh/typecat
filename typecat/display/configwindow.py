@@ -109,7 +109,7 @@ class GtkFontLoadingWindow(Gtk.Window):
         self.set_border_width(10)
         self.box1 = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
         self.label = Gtk.Label()
-        self.label.set_markup("<b>Loading fonts</b>\nThis may take a few minutes, please wait...")
+        self.label.set_markup("<b>First time setup: Loading fonts</b>\nThis may take a few minutes, please wait...")
         self.label.set_alignment(0, 0)
         self.progressbar = Gtk.ProgressBar()
         self.current_font = Gtk.Label()
