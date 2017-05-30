@@ -10,7 +10,7 @@ SAVE_DIR = os.path.dirname(os.path.realpath(__file__)) + '/training_data/'
 
 NUM_STEPS = 2000
 
-LEARNING_RATE = .001
+LEARNING_RATE = .0001
 
 model_to_train = mdl.model
 
@@ -19,7 +19,7 @@ META_FILE = 'model.ckpt-60.meta'
 with model_to_train.as_default():
     tf.summary.scalar('loss', mdl.loss)
 
-    optimizer = tf.train.GradientDescentOptimizer(LEARNING_RATE)
+    optimizer = tf.train.AdamOptimizer()
 
     global_step = tf.Variable(0, name='global_step', trainable=False)
     train_op = optimizer.minimize(mdl.loss, global_step=global_step)
