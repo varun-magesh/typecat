@@ -1,0 +1,5 @@
+serif
+handwriting
+monospace
+display
+sans serif
