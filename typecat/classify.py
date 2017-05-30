@@ -1,32 +1,25 @@
 import numpy as np
 import tensorflow as tf
 import os.path
+from StringIO import StringIO
 
-imagePath = '/tmp/imagenet/flower.jpg'
 FIVE_CLASS_MODEL = 'model/five_class_graph.pb'
 FIVE_CLASS_LABELS = 'model/five_class_labels.txt'
 
-
-def create_graph():
-    """Creates a graph from saved GraphDef file and returns a saver."""
-    # Creates graph from saved graph_def.pb.
-    with tf.gfile.FastGFile(modelFullPath, 'rb') as f:
-        graph_def = tf.GraphDef()
-        graph_def.ParseFromString(f.read())
-        _ = tf.import_graph_def(graph_def, name='')
+with tf.gfile.FastGFile(modelFullPath, 'rb') as f:
+graph_def = tf.GraphDef()
+graph_def.ParseFromString(f.read())
+_ = tf.import_graph_def(graph_def, name='')
 
 
-def run_inference_on_image():
+def classify(font):
     answer = None
 
-    if not tf.gfile.Exists(imagePath):
-        tf.logging.fatal('File does not exist %s', imagePath)
-        return answer
-
     image_data = tf.gfile.FastGFile(imagePath, 'rb').read()
-
-    # Creates graph from saved GraphDef.
-    create_graph()
+    img = font.training_img()
+    f = StringIO()
+    img.save(f, 'JPEG')
+    image_data = tf.gfile.FastGFile(f, 'rb').read()
 
     with tf.Session() as sess:
 
