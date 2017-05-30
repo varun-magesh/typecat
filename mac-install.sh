@@ -7,5 +7,6 @@ fi
 
 # Update homebrew recipes
 brew update
+brew install python3
 brew install gtk+3
 brew install pygobject3
