@@ -5,6 +5,9 @@ gi.require_version('Gtk', '3.0')
 import array
 from gi.repository import Gtk, Gdk, GLib, GdkPixbuf
 
+def multiline_gtk(*args):
+        return pil2gtk(multiline_gtk(*args))
+
 def multiline_gtk(text, pilfont, size, mode="RGB", padx=0, pady=0, spacing=0,
                   background=config.PIL_BACKGROUND, foreground=(0, 0, 0)):
         """ Automatically spaces and fits text to an image """
@@ -30,8 +33,7 @@ def multiline_gtk(text, pilfont, size, mode="RGB", padx=0, pady=0, spacing=0,
 
         draw.multiline_text((padx, pady), "".join(textlist), font=pilfont,
                             fill=foreground, spacing=spacing)
-
-        return pil2gtk(image)
+        return image
 
 def pil2gtk(im):
     """Convert Pillow image to GdkPixbuf"""

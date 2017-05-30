@@ -4,12 +4,23 @@ import typecat.font2img as f2i
 import numpy as np
 from math import sin, cos, pi, sqrt
 import pickle
+from StringIO import StringIO
+import tensorflow as tf
+import os.path
 
 #mean stddev min max
 MEAN = 0
 STDDEV = 1
 MIN = 2
 MAX = 3
+
+_FIVE_CLASS_MODEL = 'model/five_class_graph.pb'
+_FIVE_CLASS_LABELS = 'model/five_class_labels.txt'
+
+with tf.gfile.FastGFile(os.path.abspath(_FIVE_CLASS_MODEL, 'rb') as f:
+    graph_def = tf.GraphDef()
+    graph_def.ParseFromString(f.read())
+    _ = tf.import_graph_def(graph_def, name='')
 
 
 class RenderError(Exception):
@@ -70,6 +81,9 @@ class Font(object):
         ["ratio", -1],
         ["thickness_variation", -1]
     ]
+
+    FIVE_CLASS_MODEL = _FIVE_CLASS_MODEL 
+    FIVE_CLASS_LABELS = _FIVE_CLASS_LABELS 
 
     search_str = ""
     search_categories = []
@@ -173,31 +187,31 @@ class Font(object):
         return self.pilfont.getsize(*args)
 
     def extract_category(self):
-        # Check if serif by using the uppercase T
-        # Should be unique to serif characters, might also pick up
-        # calligraphy?
-        linestr = "T"
-        bmpsize = self.pilfont.getsize(linestr)
+        answer = None
+        image_data = tf.gfile.FastGFile(imagePath, 'rb').read()
+        img = self.training_img()
+        f = StringIO()
+        img.save(f, 'JPEG')
+        image_data = tf.gfile.FastGFile(f, 'rb').read()
 
-        lineimg = Image.new("1", bmpsize, color=1)
+        with tf.Session() as sess:
 
-        mask = Image.new("1", bmpsize, color=1)
-        drawmask = ImageDraw.Draw(mask)
+            softmax_tensor = sess.graph.get_tensor_by_name('final_result:0')
+            predictions = sess.run(softmax_tensor,
+                                   {'DecodeJpeg/contents:0': image_data})
+            predictions = np.squeeze(predictions)
 
-        draw = ImageDraw.Draw(lineimg)
-        draw.text((0, 0), linestr, font=self.pilfont, fill=(0))
+            top_k = predictions.argsort()[-5:][::-1]  # Getting top 5 predictions
+            f = open(labelsFullPath, 'rb')
+            lines = f.readlines()
+            labels = [str(w).replace("\n", "") for w in lines]
+            for node_id in top_k:
+                human_string = labels[node_id]
+                score = predictions[node_id]
+                print('%s (score = %.5f)' % (human_string, score))
 
-        widths = set()
-        for y in range(int(2 * bmpsize[1] / 3), bmpsize[1]):
-            drawmask.rectangle([(0, 0), bmpsize], fill=0)
-            drawmask.line([(0, y), (bmpsize[0], y)], fill=1)
-            stat = ImageStat.Stat(lineimg, mask)
-            widths.add(stat.sum[0])
-        # TODO there are more categories than just serif and sans
-        if(len(widths) != 1):
-            self.category = Font.SERIF
-        else:
-            self.category = Font.SANS
+            answer = labels[top_k[0]]
+            return answer
 
     def extract_slant(self):
         """ Compute slant by getting mean slope of characters """
