@@ -15,7 +15,7 @@ Most python dependencies will be auto-installed by pip. This is what you need to
 * [PyGObject Introspection]( https://pygobject.readthedocs.io/en/latest/getting_started.html)
 ## Installation
 Once the dependencies have been installed, navigate to the typecat github directory and run `pip3 install .` (you may need root/admin privileges).
-You can now run it by running `python3 -m typecat`.
+You can now run it from anywhere on the system with `python3 -m typecat`.
 ## Status
 While it is currently fully functioning, there remains to be a lot of room for improvement.
 
