@@ -1,10 +1,7 @@
 from PIL import Image, ImageDraw, ImageFont, ImageStat, ImageOps
 import typecat.config as config
 import typecat.font2img as f2i
-from numpy import polyfit
 import numpy as np
-import scipy.stats as stats
-import matplotlib.pyplot as pl
 from math import sin, cos, pi, sqrt
 import pickle
 
@@ -226,7 +223,7 @@ class Font(object):
                     # and y
                     xp.append(y)
                     yp.append(pt / n)
-            slant, offset = polyfit(xp, yp, 1)
+            slant, offset = np.polyfit(xp, yp, 1)
             meanslant += slant
         self.slant = -meanslant / len(slstr)
 
@@ -376,11 +373,6 @@ class Font(object):
             minimum = min(population)
             for p in population:
                 p = (p - minimum) / (maximum - minimum)
-            population.sort()
-            fit = stats.norm.pdf(population, np.mean(population), np.std(population))
-            pl.plot(population, fit, '-o')
-            pl.hist(population, normed=True)
-            pl.show()
             mean = np.mean(population)
             stddev = np.std(population)
             Font.scale_values[f[0]] = (mean, stddev, max(population), min(population))
