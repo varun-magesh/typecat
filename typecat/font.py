@@ -2,10 +2,10 @@ import tensorflow as tf
 from PIL import Image, ImageDraw, ImageFont, ImageStat, ImageOps
 import typecat.config as config
 import typecat.font2img as f2i
+import os
 import numpy as np
 from math import sin, cos, pi, sqrt
 import pickle
-from io import BytesIO
 
 from pkg_resources import resource_string
 
@@ -17,11 +17,11 @@ MAX = 3
 
 #setup tf model
 _FIVE_CLASS_MODEL = resource_string(__name__,  'models/five_class_graph.pb')
+print("Opened graph")
 
 graph_def = tf.GraphDef()
 graph_def.ParseFromString(_FIVE_CLASS_MODEL)
 _ = tf.import_graph_def(graph_def, name='')
-
 
 class RenderError(Exception):
     pass
@@ -172,7 +172,6 @@ class Font(object):
             width = bbox[2] - bbox[0]
             height = bbox[3] - bbox[1]
             temp_crop = temp_img.crop(bbox)
-            print(width, height)
             img.paste(temp_crop, tuple(current_pos))
             current_pos[1] = current_pos[1] + spacing
         self.set_size(temp_size)
@@ -215,9 +214,10 @@ class Font(object):
 
     def extract_category(self):
         img = self.training_img()
-        f = BytesIO()
-        img.save(f, 'JPEG')
-        image_data = f
+        # FIXME this won't work if the user doesn't have r/w privs in the cwd
+        img.save(open("tmpfile", 'wb'), 'JPEG')
+        image_data = tf.gfile.FastGFile("tmpfile", 'rb').read()
+        os.remove("tmpfile")
 
         with tf.Session() as sess:
 
@@ -225,9 +225,8 @@ class Font(object):
             predictions = sess.run(softmax_tensor,
                                    {'DecodeJpeg/contents:0': image_data})
             predictions = np.squeeze(predictions)
-            max_index, max_value = max(enumerate(predictions), lambda p: p[1])
+            max_index, max_value = max(enumerate(predictions), key=lambda p: p[1])
             self.category = Font.CATEGORIES[max_index]
-
     def extract_slant(self):
         """ Compute slant by getting mean slope of characters """
         meanslant = 0
