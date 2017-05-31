@@ -6,9 +6,9 @@ import array
 from gi.repository import Gtk, Gdk, GLib, GdkPixbuf
 
 def multiline_gtk(*args):
-        return pil2gtk(multiline_gtk(*args))
+        return pil2gtk(multiline(*args))
 
-def multiline_gtk(text, pilfont, size, mode="RGB", padx=0, pady=0, spacing=0,
+def multiline(text, pilfont, size, mode="RGB", padx=0, pady=0, spacing=0,
                   background=config.PIL_BACKGROUND, foreground=(0, 0, 0)):
         """ Automatically spaces and fits text to an image """
         image = Image.new(mode, size, background)
