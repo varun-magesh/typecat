@@ -1,15 +1,12 @@
+from gi.repository import GLib, GdkPixbuf
 from PIL import Image, ImageDraw
 import typecat.config as config
 import gi
 gi.require_version('Gtk', '3.0')
-import array
-from gi.repository import Gtk, Gdk, GLib, GdkPixbuf
 
-def multiline_gtk(*args):
-        return pil2gtk(multiline(*args))
 
 def multiline(text, pilfont, size, mode="RGB", padx=0, pady=0, spacing=0,
-                  background=config.PIL_BACKGROUND, foreground=(0, 0, 0)):
+              background=config.PIL_BACKGROUND, foreground=(0, 0, 0)):
         """ Automatically spaces and fits text to an image """
         image = Image.new(mode, size, background)
         draw = ImageDraw.Draw(image)
@@ -35,6 +32,7 @@ def multiline(text, pilfont, size, mode="RGB", padx=0, pady=0, spacing=0,
                             fill=foreground, spacing=spacing)
         return image
 
+
 def pil2gtk(im):
     """Convert Pillow image to GdkPixbuf"""
     data = im.tobytes()
@@ -43,13 +41,10 @@ def pil2gtk(im):
     pix = GdkPixbuf.Pixbuf.new_from_bytes(data, 0,
             False, 8, w, h, w * 3)
     return pix
-"""
-def pil2gtk(im):
-    arr = array.array('B', im.tobytes())
-    width, height = im.size
-    return GdkPixbuf.Pixbuf.new_from_data(arr, GdkPixbuf.Colorspace.RGB,
-                                          True, 8, width, height, width * 4)
-"""
+
+
+def multiline_gtk(*args, **kwargs):
+    return pil2gtk(multiline(*args, **kwargs))
 
 
 def single_pil(text, pilfont, size=None, mode="1", fore=0, back=1):

@@ -132,7 +132,7 @@ class Font(object):
             self.extract_centroid_metrics()
             self.extract_width()
             self.extract_thickness()
-            self.extract_category()
+#            self.extract_category()
             self.extract_slant()
 
             print("Loaded {} from {}".format(self.name, self.path))
