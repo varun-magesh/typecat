@@ -96,7 +96,7 @@ class Font(object):
     def dist(self):
         total = 0
         if self.category in Font.search_categories:
-            total += 1000
+            total += 100
         if Font.search_str != "" and Font.search_str.lower() in self.name.lower():
             total += 100
         for f, v in Font.compare.items():

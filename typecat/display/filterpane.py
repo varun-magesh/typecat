@@ -46,6 +46,7 @@ class CategoryOption(Gtk.Box):
         self.pack_start(self.checkbox, False, False, 0)
         self.checkbox.set_halign(Gtk.Align.START)
         self.checkbox_state = self.checkbox.get_active()
+        self.checkbox.connect("toggled", self.on_click_checkbox)
 
     def on_click_checkbox(self, button):
         self.checkbox_state = self.checkbox.get_active()
@@ -71,7 +72,6 @@ class FilterPane(Gtk.Box):
         for co in self.categorywidgets:
             if co.checkbox_state:
                 Font.search_categories.append(co.feature.upper())
-
         self.set_filter(FilterPane.sort_func)
 
     def __init__(self, set_filter):
@@ -99,7 +99,6 @@ class FilterPane(Gtk.Box):
             cw = CategoryOption(c.title(), self.filter_)
             self.categorywidgets.append(cw)
             self.pack_start(cw, False, False, 5)
-
 
         if len(Font.fonts) > 200:
             self.button = Gtk.Button.new_with_label("Sort")
