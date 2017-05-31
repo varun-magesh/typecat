@@ -1,4 +1,4 @@
-from PIL import Image, ImageDraw, ImageFont, ImageStat, ImageOps
+from PIL import ImageFont, ImageOps
 import typecat.config as config
 import typecat.font2img as f2i
 import numpy as np
@@ -9,10 +9,10 @@ import tensorflow as tf
 from pkg_resources import resource_string
 
 #mean stddev min max
-MEAN = 0
-STDDEV = 1
-MIN = 2
-MAX = 3
+_MEAN = 0
+_STDDEV = 1
+_MIN = 2
+_MAX = 3
 
 #setup tf model
 _FIVE_CLASS_MODEL = resource_string(__name__,  'models/five_class_graph.pb')
@@ -86,9 +86,13 @@ class Font(object):
 
     FIVE_CLASS_MODEL = _FIVE_CLASS_MODEL
 
+    """ String user is searching for if any """
     search_str = ""
+    """ Categories checked """
     search_categories = []
+    """ All fonts loaded key=name value=Font object """
     fonts = dict()
+    """ feature scaling stat values, key=feature value=(mean, stddev, max, min)"""
     scale_values = dict()
 
     def dist(self):
@@ -357,12 +361,12 @@ class Font(object):
         style = pilfont.font.style
         return "{} {}".format(family, style)
 
-
     @staticmethod
     def scale(feature, value):
         """ Scales a value to its standard dev. across the font set. """
-        xprime = ((value - Font.scale_values[feature][MIN]) / (Font.scale_values[feature][MAX] - Font.scale_values[feature][MIN])) * 10 - 5
-        return xprime
+        xprime = (value - Font.scale_values[feature][_MEAN]) / Font.scale_values[feature][_STDDEV]
+        x2prime = (((xprime - Font.scale_values[feature][_MIN]) / (Font.scale_values[feature][_MAX] - Font.scale_values[feature][_MIN])) * 10) - 5
+        return x2prime
 
     @staticmethod
     def scale_features():
@@ -373,10 +377,10 @@ class Font(object):
             population = []
             for k in Font.fonts.keys():
                 population.append(Font.fonts[k].__dict__[f])
-            maximum = max(population)
-            minimum = min(population)
-            for p in population:
-                p = (p - minimum) / (maximum - minimum)
             mean = np.mean(population)
             stddev = np.std(population)
-            Font.scale_values[f] = (mean, stddev, max(population), min(population))
+            for idx, p in enumerate(population):
+                population[idx] = (p - mean) / stddev
+            maximum = max(population)
+            minimum = min(population)
+            Font.scale_values[f] = (mean, stddev, maximum, minimum)
