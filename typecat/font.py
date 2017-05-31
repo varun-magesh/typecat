@@ -6,7 +6,7 @@ from math import sin, cos, pi, sqrt
 import pickle
 from io import StringIO
 import tensorflow as tf
-import os.path
+from pkg_resources import resource_string
 
 #mean stddev min max
 MEAN = 0
@@ -14,13 +14,12 @@ STDDEV = 1
 MIN = 2
 MAX = 3
 
-_FIVE_CLASS_MODEL = os.path.abspath('models/five_class_graph.pb')
-_FIVE_CLASS_LABELS = os.path.abspath('models/five_class_labels.txt')
+#setup tf model
+_FIVE_CLASS_MODEL = resource_string(__name__,  'models/five_class_graph.pb')
 
-with tf.gfile.FastGFile(os.path.abspath(_FIVE_CLASS_MODEL), 'rb') as f:
-    graph_def = tf.GraphDef()
-    graph_def.ParseFromString(f.read())
-    _ = tf.import_graph_def(graph_def, name='')
+graph_def = tf.GraphDef()
+graph_def.ParseFromString(_FIVE_CLASS_MODEL)
+_ = tf.import_graph_def(graph_def, name='')
 
 
 class RenderError(Exception):
@@ -76,17 +75,16 @@ class Font(object):
     }
 
     DELTA_RAD = pi/18
-    compare = [
-        ["slant", -1],
-        ["thickness", -1],
-        ["width", -1],
-        ["height", -1],
-        ["ratio", -1],
-        ["thickness_variation", -1]
-    ]
+    compare = {
+        "slant": -1,
+        "thickness": -1,
+        "width": -1,
+        "height": -1,
+        "ratio": -1,
+        "thickness_variation": -1
+    }
 
     FIVE_CLASS_MODEL = _FIVE_CLASS_MODEL
-    FIVE_CLASS_LABELS = _FIVE_CLASS_LABELS
 
     search_str = ""
     search_categories = []
@@ -99,7 +97,7 @@ class Font(object):
             total += 1000
         if Font.search_str != "" and Font.search_str.lower() in self.name.lower():
             total += 100
-        for f, v in Font.compare:
+        for f, v in Font.compare.items():
             if v == -1:
                 continue
             if type(v) in [float, int]:
@@ -370,14 +368,14 @@ class Font(object):
         """
         Calculates the stddev, mean, min, and max of each feature.
         """
-        for f in Font.compare:
+        for f, v in Font.compare.items():
             population = []
             for k in Font.fonts.keys():
-                population.append(Font.fonts[k].__dict__[f[0]])
+                population.append(Font.fonts[k].__dict__[f])
             maximum = max(population)
             minimum = min(population)
             for p in population:
                 p = (p - minimum) / (maximum - minimum)
             mean = np.mean(population)
             stddev = np.std(population)
-            Font.scale_values[f[0]] = (mean, stddev, max(population), min(population))
+            Font.scale_values[f] = (mean, stddev, max(population), min(population))

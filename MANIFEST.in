@@ -1,2 +1,3 @@
 include LICENSE.txt
 include README.md
+include typecat/models/five_class_graph.pb
