@@ -1,6 +1,6 @@
 import gi
 gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk, Gdk
+from gi.repository import Gtk
 from typecat.font import Font
 
 
@@ -24,8 +24,8 @@ class FilterOption(Gtk.Box):
 
         self.hseparator = Gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL)
 
+        self.pack_start(self.hseparator, True, True, 0)
         self.pack_start(self.checkbox, False, False, 0)
-        self.pack_end(self.hseparator, True, True, 0)
         self.pack_end(self.slider, True, True, 0)
 
     def on_click_checkbox(self, button):
@@ -60,11 +60,11 @@ class FilterPane(Gtk.Box):
 
     def filter_(self, *args):
         Font.search_str = self.searchbar.get_text()
-        for idx, fo in enumerate(self.filterwidgets):
+        for fo in self.filterwidgets:
             if fo.checkbox_state:
-                Font.compare[idx][1] = fo.slider_value
+                Font.compare[fo.feature.lower().replace(" ", "_")] = fo.slider_value
             else:
-                Font.compare[idx][1] = -1
+                Font.compare[fo.feature.lower().replace(" ", "_")] = -1
 
         self.set_filter(FilterPane.sort_func)
 
@@ -76,19 +76,18 @@ class FilterPane(Gtk.Box):
         self.set_filter = set_filter
         self.searchbar = Gtk.SearchEntry(valign=Gtk.Align.START)
         self.searchbar.connect("activate", self.filter_)
+        self.searchbar.set_margin_bottom(15)
         self.pack_start(self.searchbar, False, False, 0)
-        for num, f in enumerate(Font.compare):
+        for f, v in Font.compare.items():
 
             # if len(Font.fonts) > 200:
             #     filterfunc = lambda *args: 0
             if len(Font.fonts) > 200:
-                fw = FilterOption(f[0].replace("_", " ").title(), self.filter_, False)
+                fw = FilterOption(f.replace("_", " ").title(), self.filter_, False)
             else:
-                fw = FilterOption(f[0].replace("_", " ").title(), self.filter_, True)
+                fw = FilterOption(f.replace("_", " ").title(), self.filter_, True)
             self.filterwidgets.append(fw)
             padding = 5
-            if num == 0:
-                padding = 10
             self.pack_start(fw, False, False, padding)
         if len(Font.fonts) > 200:
             self.button = Gtk.Button.new_with_label("Sort")
