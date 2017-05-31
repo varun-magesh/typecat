@@ -1,12 +1,10 @@
 from PIL import Image, ImageDraw, ImageFont, ImageStat, ImageOps
 import typecat.config as config
 import typecat.font2img as f2i
-from numpy import polyfit
 import numpy as np
-import scipy.stats as stats
 from math import sin, cos, pi, sqrt
 import pickle
-from StringIO import StringIO
+from io import StringIO
 import tensorflow as tf
 import os.path
 
@@ -16,10 +14,10 @@ STDDEV = 1
 MIN = 2
 MAX = 3
 
-_FIVE_CLASS_MODEL = 'model/five_class_graph.pb'
-_FIVE_CLASS_LABELS = 'model/five_class_labels.txt'
+_FIVE_CLASS_MODEL = os.path.abspath('models/five_class_graph.pb')
+_FIVE_CLASS_LABELS = os.path.abspath('models/five_class_labels.txt')
 
-with tf.gfile.FastGFile(os.path.abspath(_FIVE_CLASS_MODEL, 'rb') as f:
+with tf.gfile.FastGFile(os.path.abspath(_FIVE_CLASS_MODEL), 'rb') as f:
     graph_def = tf.GraphDef()
     graph_def.ParseFromString(f.read())
     _ = tf.import_graph_def(graph_def, name='')
@@ -64,17 +62,20 @@ class Font(object):
     HANDWRITING = "Handwriting"
     BLOCK = "Block"
 
-    DELTA_RAD = pi/18
-    DISPLAY_CATEGORIES = [
-        ('Category: {}', 'category'),
-        ('Width: {} Height: {} Ratio: {}',
-         ('width', 'height', 'ratio')),
-        ('Slant: {}', 'slant'),
-        ('Thickness: {}', 'thickness'),
-        ('Thickness Variation: {}', 'thickness_variation'),
-        ('Path: {}', 'path')
-    ]
+    CATEGORIES = {
+        "SERIF": 0,
+        "HANDWRITING": 1,
+        "DISPLAY": 2,
+        "MONOSPACE": 3,
+        "SANS": 4,
+        0: "SERIF",
+        1: "HANDWRITING",
+        2: "DISPLAY",
+        3: "MONOSPACE",
+        4: "SANS",
+    }
 
+    DELTA_RAD = pi/18
     compare = [
         ["slant", -1],
         ["thickness", -1],
@@ -189,8 +190,6 @@ class Font(object):
         return self.pilfont.getsize(*args)
 
     def extract_category(self):
-        answer = None
-        image_data = tf.gfile.FastGFile(imagePath, 'rb').read()
         img = self.training_img()
         f = StringIO()
         img.save(f, 'JPEG')
@@ -202,18 +201,8 @@ class Font(object):
             predictions = sess.run(softmax_tensor,
                                    {'DecodeJpeg/contents:0': image_data})
             predictions = np.squeeze(predictions)
-
-            top_k = predictions.argsort()[-5:][::-1]  # Getting top 5 predictions
-            f = open(labelsFullPath, 'rb')
-            lines = f.readlines()
-            labels = [str(w).replace("\n", "") for w in lines]
-            for node_id in top_k:
-                human_string = labels[node_id]
-                score = predictions[node_id]
-                print('%s (score = %.5f)' % (human_string, score))
-
-            answer = labels[top_k[0]]
-            return answer
+            max_index, max_value = max(enumerate(predictions), lambda p: p[1])
+            return Font.CATEGORIES[max_index]
 
     def extract_slant(self):
         """ Compute slant by getting mean slope of characters """
