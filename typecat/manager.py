@@ -1,10 +1,12 @@
 import os
+import tensorflow as tf
 import pickle
 import threading
 from gi.repository import GLib, GObject, Gtk
 import typecat.config as config
 from typecat.display.configwindow import GtkFontLoadingWindow
-from typecat.font import Font, RenderError
+import typecat.font as font
+
 
 total_files = 0
 loaded_files = 0
@@ -32,11 +34,10 @@ def load_cache():
             continue
         fontname = f[:-7]
         try:
-            loadfont = pickle.load(open("{}/{}".format(
-                                   config.CACHE_LOCATION, f), "rb"))
-            Font.fonts[fontname] = loadfont
-            print("Loaded {} from cache".format(Font.fonts[fontname].name))
-        except RenderError:
+            loadfont = pickle.load(open("{}/{}".format(config.CACHE_LOCATION, f), "rb"))
+            font.Font.fonts[fontname] = loadfont
+            print("Loaded {} from cache".format(font.Font.fonts[fontname].name))
+        except font.RenderError:
             print("Skipping {}, unable to render correctly, adding to exceptions".format(fontname))
             exceptions.add(fontname)
         loaded_cache += 1
@@ -65,13 +66,13 @@ def load_files():
 
         for f in fontpaths:
             try:
-                fontname = Font.extract_name(f)
+                fontname = font.Font.extract_name(f)
                 current_file_name = fontname
                 if fontname in exceptions or f in exceptions:
                     print("Skipping font {}, in exception list".format(fontname))
                     continue
-                g = Font(f)
-                Font.fonts[fontname] = g
+                g = font.Font(f)
+                font.Font.fonts[fontname] = g
                 g.save()
                 print("Loaded {} from file".format(
                     g.name))

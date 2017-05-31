@@ -4,8 +4,10 @@ from sys import platform as _platform
 from configparser import ConfigParser
 
 
+
 PIL_BACKGROUND = (255, 255, 239)
 CACHE_LOCATION = expanduser("~/.typecat/")
+print(CACHE_LOCATION)
 FONT_DIRS = []
 if _platform == "linux" or _platform == "linux2":
         FONT_DIRS = [expanduser("~/.fonts"), "/usr/share/fonts"]
@@ -39,6 +41,8 @@ def read_config():
             # FIXME might cause issues if there are commas in the filename
             FONT_FILE_EXTENSIONS = ",".split(conf.get("Misc",
                                                       "Font File Extensions"))
+            return True
+
         except Exception:
             print("ERROR invalid config file, creating a new one at {}".format(
                   CONFIG_LOCATION))
@@ -51,7 +55,8 @@ def read_config():
                      ",".join(FONT_FILE_EXTENSIONS))
             with open(CONFIG_LOCATION, 'w') as fileconf:
                 conf.write(fileconf)
-        return True
+            return False
+
     else:
         return False
 

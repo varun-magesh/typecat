@@ -1,3 +1,4 @@
+import tensorflow as tf
 from PIL import Image, ImageDraw, ImageFont, ImageStat, ImageOps
 import typecat.config as config
 import typecat.font2img as f2i
@@ -5,7 +6,7 @@ import numpy as np
 from math import sin, cos, pi, sqrt
 import pickle
 from io import StringIO
-import tensorflow as tf
+
 from pkg_resources import resource_string
 
 #mean stddev min max
@@ -152,6 +153,28 @@ class Font(object):
         self.name = "{} {}".format(self.family, self.style)
         self.ascent = self.pilfont.font.ascent
         self.descent = self.pilfont.font.descent
+
+    def training_img(self):
+        temp_font = self
+        temp_font.set_size(60)
+        glyphs = ['Laseg', 'dhum', 'Hloiv']
+        current_pos = [25, 25]
+        spacing = 60
+        img = Image.new("L", (226, 226), 0)
+        for g in glyphs:
+            temp_img = Image.new(mode="L", size=(226, 226), color=0)
+            temp_draw = ImageDraw.Draw(temp_img)
+            temp_draw.text((0, 0), g, font=temp_font.pilfont, fill=255)
+            bbox = temp_img.getbbox()
+            if bbox is None:
+                return temp_img
+            width = bbox[2] - bbox[0]
+            height = bbox[3] - bbox[1]
+            temp_crop = temp_img.crop(bbox)
+            print(width, height)
+            img.paste(temp_crop, tuple(current_pos))
+            current_pos[1] = current_pos[1] + spacing
+        return ImageOps.invert(img)
 
     def extract_width(self):
         """ Infers width by averaging individual character widths. """

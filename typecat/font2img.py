@@ -47,13 +47,13 @@ def multiline_gtk(*args, **kwargs):
     return pil2gtk(multiline(*args, **kwargs))
 
 
-def single_pil(text, pilfont, size=None, mode="1", fore=0, back=1):
+def single_pil(text, pilfont, size=None, mode="1", fore=0, back=1, location=(0, 0)):
     """ Creates a one row b&w image of text to quantify """
     bmpsize = (0, 0)
     bmpsize = pilfont.getsize(text) if size is None else size
     img = Image.new(mode, bmpsize, color=1)
     draw = ImageDraw.Draw(img)
-    draw.text((0, 0), text, font=pilfont, fill=(0))
+    draw.text(location, text, font=pilfont, fill=(0))
     return (img, draw)
 
 def fingerprint(pilfont):
