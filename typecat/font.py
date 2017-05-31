@@ -155,7 +155,8 @@ class Font(object):
         self.descent = self.pilfont.font.descent
 
     def training_img(self):
-        temp_font = self
+        
+        self.set_size()
         temp_font.set_size(60)
         glyphs = ['Laseg', 'dhum', 'Hloiv']
         current_pos = [25, 25]

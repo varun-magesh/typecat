@@ -1,4 +1,5 @@
 import sys
+import tensorflow # DO NOT REMOVE, YOU HAVE BEEN WARNED
 
 try:
     import gi
@@ -11,6 +12,7 @@ try:
     from gi.repository import Gtk
 except ModuleNotFoundError:
     print("FATAL ERROR: GTK not found; please install it from https://www.gtk.org/download/, or preferably, your package manager.")
+
 
 import typecat.config as config
 import typecat.manager as manager

@@ -1,5 +1,5 @@
 import os
-import tensorflow as tf
+
 import pickle
 import threading
 from gi.repository import GLib, GObject, Gtk
