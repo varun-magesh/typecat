@@ -1,16 +1,10 @@
 import os
 import pickle
-
 import threading
-from math import sqrt
-
 from gi.repository import GLib, GObject, Gtk
-
 import typecat.config as config
 from typecat.display.configwindow import GtkFontLoadingWindow
 from typecat.font import Font, RenderError
-import typecat.font as font
-
 
 total_files = 0
 loaded_files = 0
