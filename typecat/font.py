@@ -5,7 +5,7 @@ import typecat.font2img as f2i
 import numpy as np
 from math import sin, cos, pi, sqrt
 import pickle
-from io import StringIO
+from io import BytesIO
 
 from pkg_resources import resource_string
 
@@ -155,9 +155,8 @@ class Font(object):
         self.descent = self.pilfont.font.descent
 
     def training_img(self):
-        
-        self.set_size()
-        temp_font.set_size(60)
+        temp_size = self.size
+        self.set_size(60)
         glyphs = ['Laseg', 'dhum', 'Hloiv']
         current_pos = [25, 25]
         spacing = 60
@@ -165,9 +164,10 @@ class Font(object):
         for g in glyphs:
             temp_img = Image.new(mode="L", size=(226, 226), color=0)
             temp_draw = ImageDraw.Draw(temp_img)
-            temp_draw.text((0, 0), g, font=temp_font.pilfont, fill=255)
+            temp_draw.text((0, 0), g, font=self.pilfont, fill=255)
             bbox = temp_img.getbbox()
             if bbox is None:
+                self.set_size(temp_size)
                 return temp_img
             width = bbox[2] - bbox[0]
             height = bbox[3] - bbox[1]
@@ -175,6 +175,7 @@ class Font(object):
             print(width, height)
             img.paste(temp_crop, tuple(current_pos))
             current_pos[1] = current_pos[1] + spacing
+        self.set_size(temp_size)
         return ImageOps.invert(img)
 
     def extract_width(self):
@@ -214,9 +215,9 @@ class Font(object):
 
     def extract_category(self):
         img = self.training_img()
-        f = StringIO()
+        f = BytesIO()
         img.save(f, 'JPEG')
-        image_data = tf.gfile.FastGFile(f, 'rb').read()
+        image_data = f
 
         with tf.Session() as sess:
 
