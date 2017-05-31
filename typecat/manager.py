@@ -5,7 +5,7 @@ import threading
 from gi.repository import GLib, GObject, Gtk
 import typecat.config as config
 from typecat.display.configwindow import GtkFontLoadingWindow
-import typecat.font as font
+from typecat.font import Font
 
 
 total_files = 0
@@ -35,8 +35,8 @@ def load_cache():
         fontname = f[:-7]
         try:
             loadfont = pickle.load(open("{}/{}".format(config.CACHE_LOCATION, f), "rb"))
-            font.Font.fonts[fontname] = loadfont
-            print("Loaded {} from cache".format(font.Font.fonts[fontname].name))
+            Font.fonts[fontname] = loadfont
+            print("Loaded {} from cache".format(Font.fonts[fontname].name))
         except font.RenderError:
             print("Skipping {}, unable to render correctly, adding to exceptions".format(fontname))
             exceptions.add(fontname)
@@ -66,16 +66,13 @@ def load_files():
 
         for f in fontpaths:
             try:
-                fontname = font.Font.extract_name(f)
+                fontname = Font.extract_name(f)
                 current_file_name = fontname
                 if fontname in exceptions or f in exceptions:
                     print("Skipping font {}, in exception list".format(fontname))
                     continue
-                g = font.Font(f)
-                font.Font.fonts[fontname] = g
-                g.save()
-                print("Loaded {} from file".format(
-                    g.name))
+                g = Font(f)
+                Font.fonts[fontname] = g
             except Exception as e:
                 print(("Failed to read font at path {}"
                        "with exception {}").format(
@@ -90,6 +87,11 @@ def load_files():
                 break
             if loaded_files == total_files:
                 GLib.idle_add(win.cancel, None)
+
+        Font.extract_category()
+        for font in Font.fonts.values():
+            print(font.name + " " + font.category)
+            font.save()
 
     thread = threading.Thread(target=run)
     setattr(thread, "stop_flag", False)

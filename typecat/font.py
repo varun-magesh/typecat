@@ -15,14 +15,6 @@ STDDEV = 1
 MIN = 2
 MAX = 3
 
-#setup tf model
-_FIVE_CLASS_MODEL = resource_string(__name__,  'models/five_class_graph.pb')
-print("Opened graph")
-
-graph_def = tf.GraphDef()
-graph_def.ParseFromString(_FIVE_CLASS_MODEL)
-_ = tf.import_graph_def(graph_def, name='')
-
 class RenderError(Exception):
     pass
 
@@ -85,12 +77,21 @@ class Font(object):
         "descent": -1,
     }
 
-    FIVE_CLASS_MODEL = _FIVE_CLASS_MODEL
+    FIVE_CLASS_MODEL = resource_string(__name__,  'models/five_class_graph.pb')
 
     search_str = ""
     search_categories = []
     fonts = dict()
     scale_values = dict()
+
+    graph = None
+
+    @staticmethod
+    def setup_graph():
+        print("loading graph")
+        graph_def = tf.GraphDef()
+        graph_def.ParseFromString(Font.FIVE_CLASS_MODEL)
+        Font.graph = tf.import_graph_def(graph_def, name='')
 
     def dist(self):
         total = 0
@@ -133,7 +134,6 @@ class Font(object):
             self.extract_centroid_metrics()
             self.extract_width()
             self.extract_thickness()
-            self.extract_category()
             self.extract_slant()
 
             print("Loaded {} from {}".format(self.name, self.path))
@@ -212,21 +212,27 @@ class Font(object):
     def getsize(self, *args):
         return self.pilfont.getsize(*args)
 
-    def extract_category(self):
-        img = self.training_img()
-        # FIXME this won't work if the user doesn't have r/w privs in the cwd
-        img.save(open("tmpfile", 'wb'), 'JPEG')
-        image_data = tf.gfile.FastGFile("tmpfile", 'rb').read()
-        os.remove("tmpfile")
+    @staticmethod
+    def extract_category():
+        """ This is static because it's much faster to generate one graph and run a bunch than regenerate for every font """
 
-        with tf.Session() as sess:
+        if Font.graph is None:
+            Font.setup_graph()
 
+        with tf.Session(graph=Font.graph) as sess:
             softmax_tensor = sess.graph.get_tensor_by_name('final_result:0')
-            predictions = sess.run(softmax_tensor,
-                                   {'DecodeJpeg/contents:0': image_data})
-            predictions = np.squeeze(predictions)
-            max_index, max_value = max(enumerate(predictions), key=lambda p: p[1])
-            self.category = Font.CATEGORIES[max_index]
+            for font in Font.fonts.values():
+                img = font.training_img()
+                # FIXME this won't work if the user doesn't have r/w privs in the cwd
+                img.save(open("tmpfile", 'wb'), 'JPEG')
+                image_data = tf.gfile.FastGFile("tmpfile", 'rb').read()
+                os.remove("tmpfile")
+                predictions = sess.run(softmax_tensor,
+                                       {'DecodeJpeg/contents:0': image_data})
+                predictions = np.squeeze(predictions)
+                max_index, max_value = max(enumerate(predictions), key=lambda p: p[1])
+                font.category = Font.CATEGORIES[max_index]
+
     def extract_slant(self):
         """ Compute slant by getting mean slope of characters """
         meanslant = 0

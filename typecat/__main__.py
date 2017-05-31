@@ -15,8 +15,8 @@ except ModuleNotFoundError:
 
 
 import typecat.config as config
+from typecat.font import Font
 import typecat.manager as manager
-import typecat.font as font
 
 from typecat.display.configwindow import GtkConfigWindow
 from typecat.display.fontboxbox import FontBoxBox
@@ -43,7 +43,7 @@ root.add(grid)
 
 #load font files from cache
 manager.load_cache()
-font.Font.scale_features()
+Font.scale_features()
 
 fbb = FontBoxBox()
 pp = PreviewPanel(fbb.set_text)
