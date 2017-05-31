@@ -80,8 +80,8 @@ class Font(object):
         "thickness": -1,
         "width": -1,
         "height": -1,
-        "ratio": -1,
-        "thickness_variation": -1
+        "ascent": -1,
+        "descent": -1,
     }
 
     FIVE_CLASS_MODEL = _FIVE_CLASS_MODEL
@@ -144,6 +144,7 @@ class Font(object):
         if a == b:
             print("Could not render {} properly.".format(self.name))
             raise RenderError("Could not render {} properly.".format(self.name))
+
     def extract_PIL(self):
         """ Extracts all data already collected by PIL fonts """
         self.family = self.pilfont.font.family
@@ -200,7 +201,7 @@ class Font(object):
                                    {'DecodeJpeg/contents:0': image_data})
             predictions = np.squeeze(predictions)
             max_index, max_value = max(enumerate(predictions), lambda p: p[1])
-            return Font.CATEGORIES[max_index]
+            self.category = Font.CATEGORIES[max_index]
 
     def extract_slant(self):
         """ Compute slant by getting mean slope of characters """

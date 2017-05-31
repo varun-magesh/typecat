@@ -43,9 +43,10 @@ class CategoryOption(Gtk.Box):
         self.checkbox = Gtk.CheckButton(title)
         self.callback = callback
         self.feature = title
-        self.pack_start(self.checkbox)
+        self.pack_start(self.checkbox, False, False, 0)
         self.checkbox.set_halign(Gtk.Align.START)
         self.checkbox_state = self.checkbox.get_active()
+
     def on_click_checkbox(self, button):
         self.checkbox_state = self.checkbox.get_active()
         self.callback()
@@ -66,6 +67,11 @@ class FilterPane(Gtk.Box):
             else:
                 Font.compare[fo.feature.lower().replace(" ", "_")] = -1
 
+        Font.search_categories = []
+        for co in self.categorywidgets:
+            if co.checkbox_state:
+                Font.search_categories.append(co.feature.upper())
+
         self.set_filter(FilterPane.sort_func)
 
     def __init__(self, set_filter):
@@ -73,32 +79,32 @@ class FilterPane(Gtk.Box):
         self.set_border_width(5)
         self.STYLE_PROPERTY_BORDER_STYLE = Gtk.BorderStyle.OUTSET
         self.filterwidgets = []
+        self.categorywidgets = []
         self.set_filter = set_filter
         self.searchbar = Gtk.SearchEntry(valign=Gtk.Align.START)
         self.searchbar.connect("activate", self.filter_)
         self.searchbar.set_margin_bottom(15)
         self.pack_start(self.searchbar, False, False, 0)
-        for f, v in Font.compare.items():
-
-            # if len(Font.fonts) > 200:
-            #     filterfunc = lambda *args: 0
+        for f in Font.compare.keys():
             if len(Font.fonts) > 200:
-                fw = FilterOption(f.replace("_", " ").title(), self.filter_, False)
+                fw = FilterOption(f.replace("_", " ").title(), lambda *x: 0, False)
             else:
                 fw = FilterOption(f.replace("_", " ").title(), self.filter_, True)
             self.filterwidgets.append(fw)
             padding = 5
             self.pack_start(fw, False, False, padding)
+        for c in Font.CATEGORIES.keys():
+            if type(c) is int or c.isdigit():
+                continue
+            cw = CategoryOption(c.title(), self.filter_)
+            self.categorywidgets.append(cw)
+            self.pack_start(cw, False, False, 5)
+
+
         if len(Font.fonts) > 200:
             self.button = Gtk.Button.new_with_label("Sort")
             self.button.connect("clicked", self.filter_)
             self.pack_start(self.button, False, False, 0)
             self.show_all()
 
-class CategoryPane(Gtk.Box):
-    def __init__(self, set_filter):
-        self.set_border_width(5)
-        self.STYLE_PROPERTY_BORDER_STYPE = Gtk.BorderStyle.OUTSET
-        self.catwidgets = []
-        self.filter = set_filter
 
