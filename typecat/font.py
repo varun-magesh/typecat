@@ -1,8 +1,15 @@
-from PIL import ImageFont, ImageOps
+"""
+The Font class extracts and stores image data from font files.
+It is constructed with a path to a .ttf or .otf file and automatically extracts
+visual features.
+It also stores some static information on font sorting and categorization.
+It also automatically scales font features to uniform values for easier sorting.
+"""
+from PIL import ImageFont, ImageStat
 import typecat.config as config
 import typecat.font2img as f2i
 import numpy as np
-from math import sin, cos, pi, sqrt
+from math import sqrt
 import pickle
 from io import StringIO
 import tensorflow as tf
@@ -15,14 +22,15 @@ _MIN = 2
 _MAX = 3
 
 #setup tf model
-_FIVE_CLASS_MODEL = resource_string(__name__,  'models/five_class_graph.pb')
+_FIVE_CLASS_MODEL = resource_string(__name__, 'models/five_class_graph.pb')
 
-graph_def = tf.GraphDef()
-graph_def.ParseFromString(_FIVE_CLASS_MODEL)
-_ = tf.import_graph_def(graph_def, name='')
+GRAPH = tf.GraphDef()
+GRAPH.ParseFromString(_FIVE_CLASS_MODEL)
+_ = tf.import_graph_def(GRAPH, name='')
 
 
 class RenderError(Exception):
+    """ Error thrown when a font renders as boxes """
     pass
 
 class Font(object):
@@ -42,24 +50,13 @@ class Font(object):
         slant
         width
         height
-        display_categories: list of strings and values to display,
-                            first idx in tuple is name and second is dict value
         ratio: height/width
         style: bold, thin, italic etc.
         ascent: space between lowercase height and uppercase height
         descent: length of tail on 'p', 'q', and others
-        features: str of special characters supported
-        TODO curve quantification
     """
 
     ALPHABET = "abcdefghijklmnopqrstuvwxyz"
-    SYMMETRIC = "HITl"
-    MONOSPACE = "Monospace"
-    SERIF = "Serif"
-    SANS = "Sans Serif"
-    DISPLAY = "Display"
-    HANDWRITING = "Handwriting"
-    BLOCK = "Block"
 
     CATEGORIES = {
         "SERIF": 0,
@@ -74,14 +71,13 @@ class Font(object):
         4: "SANS",
     }
 
-    DELTA_RAD = pi/18
     compare = {
-        "slant": -1,
-        "thickness": -1,
-        "width": -1,
-        "height": -1,
-        "ascent": -1,
-        "descent": -1,
+        "slant": -6,
+        "thickness": -6,
+        "width": -6,
+        "height": -6,
+        "ascent": -6,
+        "descent": -6,
     }
 
     FIVE_CLASS_MODEL = _FIVE_CLASS_MODEL
@@ -95,19 +91,29 @@ class Font(object):
     """ feature scaling stat values, key=feature value=(mean, stddev, max, min)"""
     scale_values = dict()
 
+    # pylint: disable=too-many-instance-attributes
+    # Fonts have a lot of data to store
+
     def dist(self):
+        """
+        Calculates the Euclidean distance between this font and the user's
+        specifications so it can be sorted in fontboxbox
+        Relies heavily upon feature scaling.
+        """
         total = 0
         if self.category in Font.search_categories:
             total += 1000
         if Font.search_str != "" and Font.search_str.lower() in self.name.lower():
             total += 100
-        for f, v in Font.compare.items():
-            if v == -1:
+        for feature, setting in Font.compare.items():
+            if setting == -6:
+                # Setting is not being used
                 continue
-            if type(v) in [float, int]:
-                total += (v - Font.scale(f, self.__dict__[f])) ** 2
+            if isinstance(setting, (float, int)):
+                total += (setting - Font.scale(feature,
+                                               self.__dict__[feature])) ** 2
             else:
-                total += 0 if v == self.__dict__[f] else 1
+                total += 0 if setting == self.__dict__[feature] else 1
         return sqrt(total)
 
     def __lt__(self, other):
@@ -124,7 +130,7 @@ class Font(object):
 
     def __init__(self, arg1, arg2=None):
         # option 1: a path to a font to go find the details yourself
-        if type(arg1) is str:
+        if isinstance(arg1, str):
             self.path = arg1
             if arg2 is not None:
                 self.size = arg2
@@ -133,7 +139,6 @@ class Font(object):
             self.open_path()
 
             self.extract_PIL()
-            self.extract_centroid_metrics()
             self.extract_width()
             self.extract_thickness()
             self.extract_category()
@@ -169,25 +174,14 @@ class Font(object):
             totalheight += bbox[3] - bbox[1]
         self.height = totalheight / len(fullabc)
         self.width = totalwidth / len(fullabc)
-        self.ratio = self.height / self.width
 
     def extract_thickness(self):
         """
-        Calculates thickness by taking the median of thicknesses
+        Calculates thickness by averaging dark bits
         """
-        num_vals = sum(self.thicknesses)
-        sum_thick = 0
-        for val, num in enumerate(self.thicknesses):
-            sum_thick += val * num
-        mean_thickness = sum_thick / max(1, num_vals)
-        self.thickness = mean_thickness
-        # calculate stddev
-        total = 0
-        for val, num in enumerate(self.thicknesses):
-            term = (val - self.thickness) ** 2
-            total += term * num
-        stddevsq = total / max(1, num_vals)
-        self.thickness_variation = sqrt(stddevsq)
+        slstr = Font.ALPHABET + Font.ALPHABET.upper()
+        img = f2i.single_pil(slstr, self.pilfont)[0]
+        self.thickness = ImageStat.mean(img)
 
     def getsize(self, *args):
         return self.pilfont.getsize(*args)
@@ -213,7 +207,7 @@ class Font(object):
         # should one use symmetrics or the whole alphabet? Who knows
         # also TODO, when we get linear reps of each letter use that instead
         slstr = Font.ALPHABET + Font.ALPHABET.upper()
-        for c in list(Font.SYMMETRIC):
+        for c in list(slstr):
             xp = []
             yp = []
             img = f2i.single_pil(c, self.pilfont)[0]
@@ -235,104 +229,9 @@ class Font(object):
             meanslant += slant
         self.slant = -meanslant / len(slstr)
 
-    def _bound(self, loc, size):
-        if(loc[0] >= size[0]):
-            loc[0] = size[0] - 1
-        if(loc[0] <= 0):
-            loc[0] = 0
-        if(loc[1] >= size[1]):
-            loc[1] = size[1] - 1
-        if(loc[1] <= 0):
-            loc[1] = 0
-
-    def _shortest_line(self, point, imgpx, size):
-        x = point[0]
-        y = point[1]
-        # it's unlikely a segment will be more than half the size of the img
-        shortest_len = size[0]/2
-        shortest_pts = ((0, 0), (0, 0))
-        for d in range(int(pi / Font.DELTA_RAD)):
-            rad = d * Font.DELTA_RAD
-            # using sin and cosine will ensure we move exactly 1 pixel each
-            # step
-            step = (cos(rad), sin(rad))
-            nstep = (-cos(rad), -sin(rad))
-            # upper is the top point of the line
-            upper_loc = [x, y]
-            # and lower, naturally, is the bottom part
-            lower_loc = [x, y]
-            curr_len = 0
-            while curr_len < shortest_len:
-                # go a little bit further along our angle
-                if imgpx[int(upper_loc[0]), int(upper_loc[1])] == 0:
-                    upper_loc = [upper_loc[0] + step[0],
-                                 upper_loc[1] + step[1]]
-                if imgpx[int(lower_loc[0]), int(lower_loc[1])] == 0:
-                    lower_loc = [lower_loc[0] + nstep[0],
-                                 lower_loc[1] + nstep[1]]
-                # bound the vars
-                self._bound(upper_loc, size)
-                self._bound(lower_loc, size)
-                # calculate length
-                curr_len = sqrt((upper_loc[0] - lower_loc[0])**2 +
-                                (upper_loc[1] - lower_loc[1]) ** 2)
-                # if both are white and we're less than the shortest length
-                # stop and move on
-                if((imgpx[int(lower_loc[0]), int(lower_loc[1])] == 1 and
-                        imgpx[int(upper_loc[0]),
-                              int(upper_loc[1])] == 1)) and\
-                        curr_len < shortest_len:
-                    shortest_len = curr_len
-                    shortest_pts = (tuple(lower_loc), tuple(upper_loc))
-        return shortest_len, shortest_pts
-
     def set_size(self, size):
         self.size = size
-        # TODO_ this is probably really slow and inefficient
-        # wontfix, afaik pil doesn't support font resizing
         self.pilfont = ImageFont.truetype(self.path, self.size)
-
-    def extract_centroid_metrics(self):
-        # The size is 50, it aint gonna get much bigger
-        self.thicknesses = [0]*50
-        for c in list(Font.ALPHABET + Font.ALPHABET.upper()):
-            img, draw = f2i.single_pil(c, self.pilfont)
-            dr = img.copy()
-            bbox = img.getbbox()
-            img2 = ImageOps.expand(img, border=1, fill=1)
-            imgpx = img2.load()
-            for x in range(bbox[0], bbox[2]):
-                for y in range(bbox[1], bbox[3]):
-                    if img.getpixel((x, y)) == 1 or imgpx[x, y] == 1:
-                        continue
-                    shortest_len, shortest_pts = \
-                        self._shortest_line((x, y), imgpx, img2.size)
-                    self.thicknesses[int(shortest_len)] += 1
-                    # Color in center of mass of shortest line
-                    com = (int((shortest_pts[0][0]+shortest_pts[1][0])/2),
-                           int((shortest_pts[0][1]+shortest_pts[1][1])/2))
-                    dr.putpixel(com, 1)
-                    ell = ((shortest_pts[0][0]-shortest_len,
-                            shortest_pts[0][1]-shortest_len),
-                           (shortest_pts[0][0]+shortest_len,
-                            shortest_pts[0][1]+shortest_len))
-                    draw.ellipse(ell, fill=1)
-
-    def category_str(self, formatstr, categories):
-        """ Converts a display category to a string """
-        formatargs = []
-        if type(categories) is str:
-            val = self.__dict__[categories]
-            if type(val) is float:
-                val = round(val, 3)
-            formatargs.append(val)
-        elif type(categories) is tuple or type(categories) is list:
-            for i in categories:
-                val = self.__dict__[i]
-                if type(val) is float:
-                    val = round(val, 3)
-                formatargs.append(val)
-        return formatstr.format(*formatargs)
 
     def save(self):
         """ pickles to the cache directory and returns the name of the file """
@@ -365,7 +264,9 @@ class Font(object):
     def scale(feature, value):
         """ Scales a value to its standard dev. across the font set. """
         xprime = (value - Font.scale_values[feature][_MEAN]) / Font.scale_values[feature][_STDDEV]
-        x2prime = (((xprime - Font.scale_values[feature][_MIN]) / (Font.scale_values[feature][_MAX] - Font.scale_values[feature][_MIN])) * 10) - 5
+        x2prime = (((xprime - Font.scale_values[feature][_MIN]) /
+                    (Font.scale_values[feature][_MAX] -
+                     Font.scale_values[feature][_MIN])) * 10) - 5
         return x2prime
 
     @staticmethod

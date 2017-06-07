@@ -65,7 +65,7 @@ class FilterPane(Gtk.Box):
             if fo.checkbox_state:
                 Font.compare[fo.feature.lower().replace(" ", "_")] = fo.slider_value
             else:
-                Font.compare[fo.feature.lower().replace(" ", "_")] = -1
+                Font.compare[fo.feature.lower().replace(" ", "_")] = -6
 
         Font.search_categories = []
         for co in self.categorywidgets:
