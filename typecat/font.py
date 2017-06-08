@@ -176,7 +176,7 @@ class Font(object):
         """
         slstr = Font.ALPHABET + Font.ALPHABET.upper()
         img = f2i.single_pil(slstr, self.pilfont)[0]
-        self.thickness = ImageStat.Stat(img).mean
+        self.thickness = ImageStat.Stat(img).mean[0]
 
     def getsize(self, *args):
         """
@@ -292,9 +292,8 @@ class Font(object):
                 population.append(value.__dict__[feature])
             maximum = max(population)
             minimum = min(population)
-            for idx in range(len(population)):
-                population[idx] = (population[idx] - minimum) / (maximum - minimum)
             mean = np.mean(population)
+            #TODO STddev scaling
             stddev = np.std(population)
             Font.scale_values[feature] = (mean, stddev, max(population), min(population))
 
