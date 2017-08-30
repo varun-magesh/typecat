@@ -5,21 +5,15 @@ visual features.
 It also stores some static information on font sorting and categorization.
 It also automatically scales font features to uniform values for easier sorting.
 """
-from PIL import ImageFont, ImageStat
-import typecat.config as config
-import typecat.font2img as f2i
-import numpy as np
 from math import sqrt
 import pickle
 from io import StringIO
-import tensorflow as tf
+import numpy as np
 from pkg_resources import resource_string
-
-#mean stddev min max
-_MEAN = 0
-_STDDEV = 1
-_MIN = 2
-_MAX = 3
+from PIL import ImageFont, ImageStat
+import tensorflow as tf
+import typecat.config as config
+import typecat.font2img as f2i
 
 #setup tf model
 _FIVE_CLASS_MODEL = resource_string(__name__, 'models/five_class_graph.pb')
@@ -138,7 +132,8 @@ class Font(object):
                 self.size = 50
             self.open_path()
 
-            self.extract_PIL()
+            self.pilfont = None
+            self.extract_pil()
             self.extract_width()
             self.extract_thickness()
             self.extract_category()
@@ -147,14 +142,16 @@ class Font(object):
             print("Loaded {} from {}".format(self.name, self.path))
 
     def open_path(self):
+        """ Sets pilfont to the font at self.path """
         self.pilfont = ImageFont.truetype(self.path, size=self.size)
-        a = f2i.single_pil("A", self.pilfont, fore=1, back=0)[0]
-        b = f2i.single_pil("B", self.pilfont, fore=1, back=0)[0]
-        if a == b:
+        # check if the font renders properly
+        a_render = f2i.single_pil("A", self.pilfont, fore=1, back=0)[0]
+        b_render = f2i.single_pil("B", self.pilfont, fore=1, back=0)[0]
+        if a_render == b_render:
             print("Could not render {} properly.".format(self.name))
             raise RenderError("Could not render {} properly.".format(self.name))
 
-    def extract_PIL(self):
+    def extract_pil(self):
         """ Extracts all data already collected by PIL fonts """
         self.family = self.pilfont.font.family
         self.style = self.pilfont.font.style
@@ -167,8 +164,8 @@ class Font(object):
         totalwidth = 0
         totalheight = 0
         fullabc = Font.ALPHABET + Font.ALPHABET.upper()
-        for c in list(fullabc):
-            img, draw = f2i.single_pil(c, self.pilfont, fore=1, back=0)
+        for char in list(fullabc):
+            img = f2i.single_pil(char, self.pilfont, fore=1, back=0)[0]
             bbox = img.getbbox()
             totalwidth += bbox[2] - bbox[0]
             totalheight += bbox[3] - bbox[1]
@@ -181,16 +178,20 @@ class Font(object):
         """
         slstr = Font.ALPHABET + Font.ALPHABET.upper()
         img = f2i.single_pil(slstr, self.pilfont)[0]
-        self.thickness = ImageStat.mean(img)
+        self.thickness = ImageStat.Stat(img).mean
+
 
     def getsize(self, *args):
+        """ returns the pilfont size """
         return self.pilfont.getsize(*args)
 
     def extract_category(self):
+        """ Uses retrained nn to sort font """
+        # FIXME redo with tfdeploy
         img = self.training_img()
-        f = StringIO()
-        img.save(f, 'JPEG')
-        image_data = tf.gfile.FastGFile(f, 'rb').read()
+        temp_file = StringIO()
+        img.save(temp_file, 'JPEG')
+        image_data = tf.gfile.FastGFile(temp_file, 'rb').read()
 
         with tf.Session() as sess:
 
@@ -198,7 +199,7 @@ class Font(object):
             predictions = sess.run(softmax_tensor,
                                    {'DecodeJpeg/contents:0': image_data})
             predictions = np.squeeze(predictions)
-            max_index, max_value = max(enumerate(predictions), lambda p: p[1])
+            max_index = max(enumerate(predictions), lambda p: p[1])[0]
             self.category = Font.CATEGORIES[max_index]
 
     def extract_slant(self):
@@ -207,29 +208,30 @@ class Font(object):
         # should one use symmetrics or the whole alphabet? Who knows
         # also TODO, when we get linear reps of each letter use that instead
         slstr = Font.ALPHABET + Font.ALPHABET.upper()
-        for c in list(slstr):
-            xp = []
-            yp = []
-            img = f2i.single_pil(c, self.pilfont)[0]
-            px = img.load()
-            for y in range(img.size[1]):
-                pt = 0
-                n = 0
-                for x in range(img.size[0]):
-                    if px[x, y] == 0:
-                        pt += x
-                        n += 1
-                if n != 0:
+        for char in list(slstr):
+            x_pixels = []
+            y_pixels = []
+            img = f2i.single_pil(char, self.pilfont)[0]
+            img_pixels = img.load()
+            for y_value in range(img.size[1]):
+                x_sum = 0
+                total = 0
+                for x_value in range(img.size[0]):
+                    if img_pixels[x_value, y_value] == 0:
+                        x_sum += x_value
+                        total += 1
+                if total != 0:
                     # THIS IS INTENTIONAL, DON'T CHANGE IT
                     # We want to get the slant off of the normal so we reverse x
                     # and y
-                    xp.append(y)
-                    yp.append(pt / n)
-            slant, offset = np.polyfit(xp, yp, 1)
+                    x_pixels.append(y_value)
+                    y_pixels.append(x_sum / total)
+            slant = np.polyfit(x_pixels, y_pixels, 1)[0]
             meanslant += slant
         self.slant = -meanslant / len(slstr)
 
     def set_size(self, size):
+        """ Sets the size value of this font and reloads the truetype font at the correct size """
         self.size = size
         self.pilfont = ImageFont.truetype(self.path, self.size)
 
@@ -245,17 +247,17 @@ class Font(object):
     def __getstate__(self):
         return self.__dict__
 
-    def __setstate__(self, d):
-        self.__dict__ = d
+    def __setstate__(self, dict_):
+        self.__dict__ = dict_
         self.open_path()
 
     def __str__(self):
         return "Font {} at path {}".format(self.name, self.path)
 
     @staticmethod
-    def extract_name(d):
+    def extract_name(path):
         """ Extracts just the name from a font to check if it's loaded """
-        pilfont = ImageFont.truetype(d)
+        pilfont = ImageFont.truetype(path)
         family = pilfont.font.family
         style = pilfont.font.style
         return "{} {}".format(family, style)
@@ -263,10 +265,10 @@ class Font(object):
     @staticmethod
     def scale(feature, value):
         """ Scales a value to its standard dev. across the font set. """
-        xprime = (value - Font.scale_values[feature][_MEAN]) / Font.scale_values[feature][_STDDEV]
-        x2prime = (((xprime - Font.scale_values[feature][_MIN]) /
-                    (Font.scale_values[feature][_MAX] -
-                     Font.scale_values[feature][_MIN])) * 10) - 5
+        xprime = (value - Font.scale_values[feature]["mean"]) / Font.scale_values[feature]["stddev"]
+        x2prime = (((xprime - Font.scale_values[feature]["min"]) /
+                    (Font.scale_values[feature]["max"] -
+                     Font.scale_values[feature]["min"])) * 10) - 5
         return x2prime
 
     @staticmethod
@@ -274,14 +276,14 @@ class Font(object):
         """
         Calculates the stddev, mean, min, and max of each feature.
         """
-        for f, v in Font.compare.items():
+        for feature, value in Font.compare.items():
             population = []
-            for k in Font.fonts.keys():
-                population.append(Font.fonts[k].__dict__[f])
+            for item in Font.fonts:
+                population.append(item.__dict__[feature])
             mean = np.mean(population)
             stddev = np.std(population)
-            for idx, p in enumerate(population):
-                population[idx] = (p - mean) / stddev
+            for idx, pop in enumerate(population):
+                population[idx] = (pop - mean) / stddev
             maximum = max(population)
             minimum = min(population)
-            Font.scale_values[f] = (mean, stddev, maximum, minimum)
+            Font.scale_values[feature] = (mean, stddev, maximum, minimum)
