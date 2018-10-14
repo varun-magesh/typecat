@@ -1,5 +1,7 @@
 # Typecat
 
+![](https://github.com/LordPharaoh/typecat/raw/master/typecat.gif)
+
 Typecat allows you to search and filter fonts based on visual features including
 * width
 * height
